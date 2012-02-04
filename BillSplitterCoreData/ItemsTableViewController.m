@@ -15,8 +15,9 @@
 @interface ItemsTableViewController()
 
 @property (nonatomic, strong) UITableView *itemsTableView;
-
 @property (nonatomic, strong) NSMutableArray *itemsArray;
+@property (nonatomic, strong) NSManagedObjectContext *context;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
 - (void)addPerson:(UIBarButtonItem *)barButton;
 
@@ -26,6 +27,8 @@
 
 @synthesize itemsArray;
 @synthesize itemsTableView;
+@synthesize context;
+@synthesize fetchedResultsController;
 
 - (id)init
 {
@@ -33,7 +36,20 @@
   if (self)
   {
     self.title = @"Items";
-    self.itemsArray = [DataModel sharedInstance].itemsArray;
+    self.itemsArray = [DataModel sharedInstance].itemsArray; //boat
+    self.context = [DataModel sharedInstance].context;
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    fetchRequest.sortDescriptors = sortDescriptors;
+    self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                        managedObjectContext:self.context
+                                                                          sectionNameKeyPath:nil
+                                                                                   cacheName:nil];
+    self.fetchedResultsController.delegate = self;
+    NSError *error;
+    [self.fetchedResultsController performFetch:&error];
   }
   return self;
 }
@@ -77,24 +93,20 @@
 
 - (IBAction)addItem:(UIBarButtonItem *)barButton
 {
-  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.itemsArray count] inSection:0];
+  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects] inSection:0];
   NSArray *array = [NSArray arrayWithObject:indexPath];
 
-  NSManagedObjectContext *context = [DataModel sharedInstance].context;
-  
-  Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:context];
-  item.name = [NSString stringWithFormat:@"Item %d", [self.itemsArray count] + 1];
+  Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:self.context];
+  item.name = [NSString stringWithFormat:@"Item %d", [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects] + 1];
   item.contributions = [NSMutableSet set];
-  [self.itemsArray addObject:item];
+  [self.itemsArray addObject:item]; //boat
 
   [self.itemsTableView beginUpdates];
-  NSError *error = nil;
-  if (![context save:&error])
-  {
-    ;
-  }
-
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
+ 
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];
+
   [self.itemsTableView endUpdates];
 }
 
@@ -104,18 +116,8 @@
 {
   static NSString *MyIdentifier = @"MyIdentifier";
 
-//  UITableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
-//  Item *item = [self.itemsArray objectAtIndex:indexPath.row];
-//  if (cell == nil)
-//    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier];
-//  
-//  cell.textLabel.text = item.name;
-//  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-//  cell.detailTextLabel.text = cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
-//  cell.selectionStyle=UITableViewCellSelectionStyleNone;
-
   ItemTableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
-  Item *item = [self.itemsArray objectAtIndex:indexPath.row];
+  Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
   if (cell == nil)
     cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier item:item];
   
@@ -129,14 +131,15 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  return [self.itemsArray count];
+  return [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects];
 }
 
 #pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  Item *item = [self.itemsArray objectAtIndex:indexPath.row];
+//  Item *item = [self.itemsArray objectAtIndex:indexPath.row];
+  Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
   EditItemViewController *editItemViewController = [[EditItemViewController alloc] initWithItem:item];
   [self.navigationController pushViewController:editItemViewController animated:YES];
 }

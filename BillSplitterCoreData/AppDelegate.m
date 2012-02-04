@@ -23,10 +23,13 @@
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   // Override point for customization after application launch.
   
+  [DataModel sharedInstance].context = self.managedObjectContext;
+//  [DataModel sharedInstance].model = self.managedObjectModel;
+//  [DataModel sharedInstance].coordinator = self.persistentStoreCoordinator;
+
   self.mainViewController = [[MainViewController alloc] init];
   UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self.mainViewController];
   
-  [DataModel sharedInstance].context = self.managedObjectContext;
   
   self.window.rootViewController = navController;
   [self.window makeKeyAndVisible];

@@ -10,7 +10,11 @@
 
 @interface DataModel : NSObject
 
+//@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSManagedObjectContext *context;
+@property (nonatomic, strong) NSManagedObjectModel *model;
+@property (nonatomic, strong) NSPersistentStoreCoordinator *coordinator;
+
 @property (nonatomic, strong) NSMutableArray *itemsArray;
 @property (nonatomic, strong) NSMutableArray *peopleArray;
 @property (nonatomic, strong) NSNumberFormatter *currencyFormatter;

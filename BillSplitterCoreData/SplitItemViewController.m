@@ -64,15 +64,10 @@
         contribution.item = self.item;
         
         [self.item.contributions addObject:contribution];
-        [person.contributions addObject:contribution];
-        
-        NSLog(@"%@ %@ nice", contribution.item, contribution.person);
-        
+        [person.contributions addObject:contribution];        
       }
     }
   }
-  
-  NSLog(@"%@ %@", item, item.contributions);
   
   return self;
 }
@@ -130,8 +125,6 @@
   
   for (Contribution *contribution in person.contributions)
   {
-    NSLog(@"%@ %@ boat", contribution.item, contribution.person);
-
     if ([contribution.item isEqual:self.item])
     {
       amount = contribution.amount;

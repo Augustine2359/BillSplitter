@@ -11,7 +11,11 @@
 
 @implementation DataModel
 
+//@synthesize fetchedResultsController;
 @synthesize context;
+@synthesize model;
+@synthesize coordinator;
+
 @synthesize itemsArray;
 @synthesize peopleArray;
 @synthesize currencyFormatter;
@@ -25,6 +29,9 @@
   if (nil == myInstance)
   {
     myInstance = [[[self class] alloc] init];
+//    myInstance.fetchedResultsController = [[NSFetchedResultsController alloc] init];
+//    myInstance.context = [[NSManagedObjectContext alloc] init];
+    
     myInstance.itemsArray = [NSMutableArray array];
     myInstance.peopleArray = [NSMutableArray array];
     myInstance.currencyFormatter = [[NSNumberFormatter alloc] init];
