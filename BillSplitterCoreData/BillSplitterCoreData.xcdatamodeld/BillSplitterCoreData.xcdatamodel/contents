@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="872" systemVersion="10K549" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Contribution" representedClassName="Contribution" syncable="YES">
+        <attribute name="amount" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="item" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Item" inverseName="contribution" inverseEntity="Item" syncable="YES"/>
+        <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="contribution" inverseEntity="Person" syncable="YES"/>
+    </entity>
+    <entity name="Item" representedClassName="Item" syncable="YES">
+        <attribute name="basePrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="finalPrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="contribution" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Contribution" inverseName="item" inverseEntity="Contribution" syncable="YES"/>
+    </entity>
+    <entity name="Person" representedClassName="Person" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="contribution" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Contribution" inverseName="person" inverseEntity="Contribution" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Item" positionX="160" positionY="180" width="128" height="90"/>
+        <element name="Person" positionX="-63" positionY="207" width="128" height="60"/>
+        <element name="Contribution" positionX="160" positionY="192" width="128" height="90"/>
+    </elements>
+</model>

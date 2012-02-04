@@ -1,0 +1,388 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F914426214DD15F50062EE72 /* PeopleTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914426114DD15F50062EE72 /* PeopleTableViewController.m */; };
+		F914426A14DD16260062EE72 /* EditPersonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914426914DD16260062EE72 /* EditPersonViewController.m */; };
+		F914426E14DD179C0062EE72 /* SplitItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914426D14DD179C0062EE72 /* SplitItemViewController.m */; };
+		F914427114DD17E10062EE72 /* SplitTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914427014DD17E10062EE72 /* SplitTableViewController.m */; };
+		F914428014DD35110062EE72 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = F914427F14DD35110062EE72 /* Person.m */; };
+		F914428314DD35120062EE72 /* Contribution.m in Sources */ = {isa = PBXBuildFile; fileRef = F914428214DD35120062EE72 /* Contribution.m */; };
+		F914428C14DD37ED0062EE72 /* Item.m in Sources */ = {isa = PBXBuildFile; fileRef = F914428B14DD37EC0062EE72 /* Item.m */; };
+		F918FB2014DCFAEE004E9262 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F918FB1F14DCFAEE004E9262 /* UIKit.framework */; };
+		F918FB2214DCFAEE004E9262 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F918FB2114DCFAEE004E9262 /* Foundation.framework */; };
+		F918FB2414DCFAEE004E9262 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F918FB2314DCFAEE004E9262 /* CoreGraphics.framework */; };
+		F918FB2614DCFAEE004E9262 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F918FB2514DCFAEE004E9262 /* CoreData.framework */; };
+		F918FB2C14DCFAEE004E9262 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F918FB2A14DCFAEE004E9262 /* InfoPlist.strings */; };
+		F918FB2E14DCFAEE004E9262 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB2D14DCFAEE004E9262 /* main.m */; };
+		F918FB3214DCFAEE004E9262 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB3114DCFAEE004E9262 /* AppDelegate.m */; };
+		F918FB3514DCFAEF004E9262 /* BillSplitterCoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F918FB3314DCFAEE004E9262 /* BillSplitterCoreData.xcdatamodeld */; };
+		F918FB4114DCFB3F004E9262 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB4014DCFB3F004E9262 /* MainViewController.m */; };
+		F918FB4514DCFF7E004E9262 /* ItemsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB4414DCFF7E004E9262 /* ItemsTableViewController.m */; };
+		F918FB4814DD0DA0004E9262 /* DataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB4714DD0DA0004E9262 /* DataModel.m */; };
+		F918FB5114DD1382004E9262 /* EditItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5014DD1382004E9262 /* EditItemViewController.m */; };
+		F918FB5414DD13CF004E9262 /* SplitterTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5314DD13CF004E9262 /* SplitterTextField.m */; };
+		F918FB5714DD141F004E9262 /* ItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5614DD141F004E9262 /* ItemTableViewCell.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F914426014DD15F50062EE72 /* PeopleTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PeopleTableViewController.h; sourceTree = "<group>"; };
+		F914426114DD15F50062EE72 /* PeopleTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PeopleTableViewController.m; sourceTree = "<group>"; };
+		F914426814DD16260062EE72 /* EditPersonViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditPersonViewController.h; sourceTree = "<group>"; };
+		F914426914DD16260062EE72 /* EditPersonViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditPersonViewController.m; sourceTree = "<group>"; };
+		F914426C14DD179C0062EE72 /* SplitItemViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitItemViewController.h; sourceTree = "<group>"; };
+		F914426D14DD179C0062EE72 /* SplitItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitItemViewController.m; sourceTree = "<group>"; };
+		F914426F14DD17E10062EE72 /* SplitTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitTableViewController.h; sourceTree = "<group>"; };
+		F914427014DD17E10062EE72 /* SplitTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitTableViewController.m; sourceTree = "<group>"; };
+		F914427E14DD35100062EE72 /* Person.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
+		F914427F14DD35110062EE72 /* Person.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
+		F914428114DD35110062EE72 /* Contribution.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Contribution.h; sourceTree = "<group>"; };
+		F914428214DD35120062EE72 /* Contribution.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Contribution.m; sourceTree = "<group>"; };
+		F914428A14DD37EC0062EE72 /* Item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Item.h; sourceTree = "<group>"; };
+		F914428B14DD37EC0062EE72 /* Item.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Item.m; sourceTree = "<group>"; };
+		F918FB1B14DCFAEE004E9262 /* BillSplitterCoreData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BillSplitterCoreData.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F918FB1F14DCFAEE004E9262 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		F918FB2114DCFAEE004E9262 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		F918FB2314DCFAEE004E9262 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		F918FB2514DCFAEE004E9262 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		F918FB2914DCFAEE004E9262 /* BillSplitterCoreData-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BillSplitterCoreData-Info.plist"; sourceTree = "<group>"; };
+		F918FB2B14DCFAEE004E9262 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F918FB2D14DCFAEE004E9262 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F918FB2F14DCFAEE004E9262 /* BillSplitterCoreData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BillSplitterCoreData-Prefix.pch"; sourceTree = "<group>"; };
+		F918FB3014DCFAEE004E9262 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		F918FB3114DCFAEE004E9262 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		F918FB3414DCFAEE004E9262 /* BillSplitterCoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BillSplitterCoreData.xcdatamodel; sourceTree = "<group>"; };
+		F918FB3F14DCFB3F004E9262 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		F918FB4014DCFB3F004E9262 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
+		F918FB4314DCFF7E004E9262 /* ItemsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemsTableViewController.h; sourceTree = "<group>"; };
+		F918FB4414DCFF7E004E9262 /* ItemsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemsTableViewController.m; sourceTree = "<group>"; };
+		F918FB4614DD0DA0004E9262 /* DataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataModel.h; sourceTree = "<group>"; };
+		F918FB4714DD0DA0004E9262 /* DataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataModel.m; sourceTree = "<group>"; };
+		F918FB4F14DD1382004E9262 /* EditItemViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditItemViewController.h; sourceTree = "<group>"; };
+		F918FB5014DD1382004E9262 /* EditItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditItemViewController.m; sourceTree = "<group>"; };
+		F918FB5214DD13CE004E9262 /* SplitterTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SplitterTextField.h; path = ../SplitterTextField.h; sourceTree = "<group>"; };
+		F918FB5314DD13CF004E9262 /* SplitterTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SplitterTextField.m; path = ../SplitterTextField.m; sourceTree = "<group>"; };
+		F918FB5514DD141F004E9262 /* ItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemTableViewCell.h; sourceTree = "<group>"; };
+		F918FB5614DD141F004E9262 /* ItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemTableViewCell.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F918FB1814DCFAEE004E9262 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F918FB2014DCFAEE004E9262 /* UIKit.framework in Frameworks */,
+				F918FB2214DCFAEE004E9262 /* Foundation.framework in Frameworks */,
+				F918FB2414DCFAEE004E9262 /* CoreGraphics.framework in Frameworks */,
+				F918FB2614DCFAEE004E9262 /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F914426B14DD17890062EE72 /* Split */ = {
+			isa = PBXGroup;
+			children = (
+				F914426F14DD17E10062EE72 /* SplitTableViewController.h */,
+				F914427014DD17E10062EE72 /* SplitTableViewController.m */,
+				F914426C14DD179C0062EE72 /* SplitItemViewController.h */,
+				F914426D14DD179C0062EE72 /* SplitItemViewController.m */,
+			);
+			name = Split;
+			sourceTree = "<group>";
+		};
+		F918FB1014DCFAEE004E9262 = {
+			isa = PBXGroup;
+			children = (
+				F914428A14DD37EC0062EE72 /* Item.h */,
+				F914428B14DD37EC0062EE72 /* Item.m */,
+				F914428114DD35110062EE72 /* Contribution.h */,
+				F914428214DD35120062EE72 /* Contribution.m */,
+				F914427E14DD35100062EE72 /* Person.h */,
+				F914427F14DD35110062EE72 /* Person.m */,
+				F918FB2714DCFAEE004E9262 /* BillSplitterCoreData */,
+				F918FB1E14DCFAEE004E9262 /* Frameworks */,
+				F918FB1C14DCFAEE004E9262 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F918FB1C14DCFAEE004E9262 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F918FB1B14DCFAEE004E9262 /* BillSplitterCoreData.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F918FB1E14DCFAEE004E9262 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F918FB1F14DCFAEE004E9262 /* UIKit.framework */,
+				F918FB2114DCFAEE004E9262 /* Foundation.framework */,
+				F918FB2314DCFAEE004E9262 /* CoreGraphics.framework */,
+				F918FB2514DCFAEE004E9262 /* CoreData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F918FB2714DCFAEE004E9262 /* BillSplitterCoreData */ = {
+			isa = PBXGroup;
+			children = (
+				F918FB3014DCFAEE004E9262 /* AppDelegate.h */,
+				F918FB3114DCFAEE004E9262 /* AppDelegate.m */,
+				F918FB3F14DCFB3F004E9262 /* MainViewController.h */,
+				F918FB4014DCFB3F004E9262 /* MainViewController.m */,
+				F918FB4614DD0DA0004E9262 /* DataModel.h */,
+				F918FB4714DD0DA0004E9262 /* DataModel.m */,
+				F918FB5214DD13CE004E9262 /* SplitterTextField.h */,
+				F918FB5314DD13CF004E9262 /* SplitterTextField.m */,
+				F918FB4214DCFF6E004E9262 /* Items */,
+				F918FB5914DD1578004E9262 /* People */,
+				F914426B14DD17890062EE72 /* Split */,
+				F918FB3314DCFAEE004E9262 /* BillSplitterCoreData.xcdatamodeld */,
+				F918FB2814DCFAEE004E9262 /* Supporting Files */,
+			);
+			path = BillSplitterCoreData;
+			sourceTree = "<group>";
+		};
+		F918FB2814DCFAEE004E9262 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F918FB2914DCFAEE004E9262 /* BillSplitterCoreData-Info.plist */,
+				F918FB2A14DCFAEE004E9262 /* InfoPlist.strings */,
+				F918FB2D14DCFAEE004E9262 /* main.m */,
+				F918FB2F14DCFAEE004E9262 /* BillSplitterCoreData-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F918FB4214DCFF6E004E9262 /* Items */ = {
+			isa = PBXGroup;
+			children = (
+				F918FB4314DCFF7E004E9262 /* ItemsTableViewController.h */,
+				F918FB4414DCFF7E004E9262 /* ItemsTableViewController.m */,
+				F918FB4F14DD1382004E9262 /* EditItemViewController.h */,
+				F918FB5014DD1382004E9262 /* EditItemViewController.m */,
+				F918FB5514DD141F004E9262 /* ItemTableViewCell.h */,
+				F918FB5614DD141F004E9262 /* ItemTableViewCell.m */,
+			);
+			name = Items;
+			sourceTree = "<group>";
+		};
+		F918FB5914DD1578004E9262 /* People */ = {
+			isa = PBXGroup;
+			children = (
+				F914426014DD15F50062EE72 /* PeopleTableViewController.h */,
+				F914426114DD15F50062EE72 /* PeopleTableViewController.m */,
+				F914426814DD16260062EE72 /* EditPersonViewController.h */,
+				F914426914DD16260062EE72 /* EditPersonViewController.m */,
+			);
+			name = People;
+			path = ..;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F918FB1A14DCFAEE004E9262 /* BillSplitterCoreData */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F918FB3814DCFAEF004E9262 /* Build configuration list for PBXNativeTarget "BillSplitterCoreData" */;
+			buildPhases = (
+				F918FB1714DCFAEE004E9262 /* Sources */,
+				F918FB1814DCFAEE004E9262 /* Frameworks */,
+				F918FB1914DCFAEE004E9262 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BillSplitterCoreData;
+			productName = BillSplitterCoreData;
+			productReference = F918FB1B14DCFAEE004E9262 /* BillSplitterCoreData.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F918FB1214DCFAEE004E9262 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
+			buildConfigurationList = F918FB1514DCFAEE004E9262 /* Build configuration list for PBXProject "BillSplitterCoreData" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F918FB1014DCFAEE004E9262;
+			productRefGroup = F918FB1C14DCFAEE004E9262 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F918FB1A14DCFAEE004E9262 /* BillSplitterCoreData */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F918FB1914DCFAEE004E9262 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F918FB2C14DCFAEE004E9262 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F918FB1714DCFAEE004E9262 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F918FB2E14DCFAEE004E9262 /* main.m in Sources */,
+				F918FB3214DCFAEE004E9262 /* AppDelegate.m in Sources */,
+				F918FB3514DCFAEF004E9262 /* BillSplitterCoreData.xcdatamodeld in Sources */,
+				F918FB4114DCFB3F004E9262 /* MainViewController.m in Sources */,
+				F918FB4514DCFF7E004E9262 /* ItemsTableViewController.m in Sources */,
+				F918FB4814DD0DA0004E9262 /* DataModel.m in Sources */,
+				F918FB5114DD1382004E9262 /* EditItemViewController.m in Sources */,
+				F918FB5414DD13CF004E9262 /* SplitterTextField.m in Sources */,
+				F918FB5714DD141F004E9262 /* ItemTableViewCell.m in Sources */,
+				F914426214DD15F50062EE72 /* PeopleTableViewController.m in Sources */,
+				F914426A14DD16260062EE72 /* EditPersonViewController.m in Sources */,
+				F914426E14DD179C0062EE72 /* SplitItemViewController.m in Sources */,
+				F914427114DD17E10062EE72 /* SplitTableViewController.m in Sources */,
+				F914428014DD35110062EE72 /* Person.m in Sources */,
+				F914428314DD35120062EE72 /* Contribution.m in Sources */,
+				F914428C14DD37ED0062EE72 /* Item.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		F918FB2A14DCFAEE004E9262 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F918FB2B14DCFAEE004E9262 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		F918FB3614DCFAEF004E9262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		F918FB3714DCFAEF004E9262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F918FB3914DCFAEF004E9262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BillSplitterCoreData/BillSplitterCoreData-Prefix.pch";
+				INFOPLIST_FILE = "BillSplitterCoreData/BillSplitterCoreData-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		F918FB3A14DCFAEF004E9262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BillSplitterCoreData/BillSplitterCoreData-Prefix.pch";
+				INFOPLIST_FILE = "BillSplitterCoreData/BillSplitterCoreData-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F918FB1514DCFAEE004E9262 /* Build configuration list for PBXProject "BillSplitterCoreData" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F918FB3614DCFAEF004E9262 /* Debug */,
+				F918FB3714DCFAEF004E9262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F918FB3814DCFAEF004E9262 /* Build configuration list for PBXNativeTarget "BillSplitterCoreData" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F918FB3914DCFAEF004E9262 /* Debug */,
+				F918FB3A14DCFAEF004E9262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		F918FB3314DCFAEE004E9262 /* BillSplitterCoreData.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				F918FB3414DCFAEE004E9262 /* BillSplitterCoreData.xcdatamodel */,
+			);
+			currentVersion = F918FB3414DCFAEE004E9262 /* BillSplitterCoreData.xcdatamodel */;
+			path = BillSplitterCoreData.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = F918FB1214DCFAEE004E9262 /* Project object */;
+}
