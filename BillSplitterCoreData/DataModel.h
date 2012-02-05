@@ -10,7 +10,6 @@
 
 @interface DataModel : NSObject
 
-//@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) NSManagedObjectModel *model;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *coordinator;

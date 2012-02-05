@@ -13,9 +13,9 @@
 
 @interface PeopleTableViewController()
 
+@property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) UITableView *peopleTableView;
-
-@property (nonatomic, strong) NSMutableArray *peopleArray;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
 - (void)addPerson:(UIBarButtonItem *)barButton;
 
@@ -23,8 +23,9 @@
 
 @implementation PeopleTableViewController
 
-@synthesize peopleArray;
+@synthesize context;
 @synthesize peopleTableView;
+@synthesize fetchedResultsController;
 
 - (id)init
 {
@@ -32,7 +33,17 @@
   if (self)
   {
     self.title = @"People";
-    self.peopleArray = [DataModel sharedInstance].peopleArray;
+    self.context = [DataModel sharedInstance].context;
+
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    fetchRequest.sortDescriptors = sortDescriptors;
+    self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                        managedObjectContext:self.context
+                                                                          sectionNameKeyPath:nil
+                                                                                   cacheName:nil];
+    self.fetchedResultsController.delegate = self;
   }
   return self;
 }
@@ -57,6 +68,9 @@
 {
   [super viewWillAppear:animated];
   
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];  
+
   [self.peopleTableView reloadData];
 }
 
@@ -69,26 +83,26 @@
 {
   [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
   
-  self.peopleTableView.frame = CGRectMake(self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height);
+  self.peopleTableView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height);
 }
 
 #pragma mark - Action methods
 
 - (IBAction)addPerson:(UIBarButtonItem *)barButton
 {
-  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.peopleArray count] inSection:0];
+  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects] inSection:0];
   NSArray *array = [NSArray arrayWithObject:indexPath];
   
-  NSManagedObjectContext *context = [DataModel sharedInstance].context;
-  
-  Person *person = (Person *)[NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:context];
-  person.name = [NSString stringWithFormat:@"Person %c", [self.peopleArray count] + 65]; //use ASCII
+  Person *person = (Person *)[NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:self.context];
+  person.name = [NSString stringWithFormat:@"Person %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
+                 + 65]; //use ASCII
   person.contributions = [NSMutableSet set];
   
   [self.peopleTableView beginUpdates];
-  [self.peopleArray addObject:person];
   [self.peopleTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
-  [self.peopleTableView endUpdates];
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];  
+  [self.peopleTableView endUpdates];  
 }
 
 #pragma mark - UITableView DataSource
@@ -101,7 +115,7 @@
   if (cell == nil)
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MyIdentifier];
   
-  Person *person = [self.peopleArray objectAtIndex:indexPath.row];
+  Person *person = [self.fetchedResultsController.fetchedObjects objectAtIndex:indexPath.row];
   cell.textLabel.text = person.name;
   
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
@@ -111,14 +125,15 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  return [self.peopleArray count];
+  
+  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
 }
 
 #pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  Person *person = [self.peopleArray objectAtIndex:indexPath.row];
+  Person *person = [self.fetchedResultsController objectAtIndexPath:indexPath];
   EditPersonViewController *editPersonViewController = [[EditPersonViewController alloc] initWithPerson:person];
   [self.navigationController pushViewController:editPersonViewController animated:YES];
 }

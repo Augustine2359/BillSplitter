@@ -15,17 +15,15 @@
 @interface ItemsTableViewController()
 
 @property (nonatomic, strong) UITableView *itemsTableView;
-@property (nonatomic, strong) NSMutableArray *itemsArray;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
-- (void)addPerson:(UIBarButtonItem *)barButton;
+- (void)addItem:(UIBarButtonItem *)barButton;
 
 @end
 
 @implementation ItemsTableViewController
 
-@synthesize itemsArray;
 @synthesize itemsTableView;
 @synthesize context;
 @synthesize fetchedResultsController;
@@ -36,9 +34,8 @@
   if (self)
   {
     self.title = @"Items";
-    self.itemsArray = [DataModel sharedInstance].itemsArray; //boat
     self.context = [DataModel sharedInstance].context;
-    
+
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
     NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
@@ -48,8 +45,6 @@
                                                                           sectionNameKeyPath:nil
                                                                                    cacheName:nil];
     self.fetchedResultsController.delegate = self;
-    NSError *error;
-    [self.fetchedResultsController performFetch:&error];
   }
   return self;
 }
@@ -73,6 +68,9 @@
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
+
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];
   
   [self.itemsTableView reloadData];
 }
@@ -99,7 +97,6 @@
   Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:self.context];
   item.name = [NSString stringWithFormat:@"Item %d", [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects] + 1];
   item.contributions = [NSMutableSet set];
-  [self.itemsArray addObject:item]; //boat
 
   [self.itemsTableView beginUpdates];
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
@@ -131,14 +128,13 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  return [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects];
+  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
 }
 
 #pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//  Item *item = [self.itemsArray objectAtIndex:indexPath.row];
   Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
   EditItemViewController *editItemViewController = [[EditItemViewController alloc] initWithItem:item];
   [self.navigationController pushViewController:editItemViewController animated:YES];

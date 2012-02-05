@@ -11,7 +11,6 @@
 
 @implementation DataModel
 
-//@synthesize fetchedResultsController;
 @synthesize context;
 @synthesize model;
 @synthesize coordinator;
@@ -29,7 +28,6 @@
   if (nil == myInstance)
   {
     myInstance = [[[self class] alloc] init];
-//    myInstance.fetchedResultsController = [[NSFetchedResultsController alloc] init];
 //    myInstance.context = [[NSManagedObjectContext alloc] init];
     
     myInstance.itemsArray = [NSMutableArray array];

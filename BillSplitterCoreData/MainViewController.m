@@ -78,7 +78,7 @@
     
     self.itemsTableViewController = [[ItemsTableViewController alloc] init];
     self.peopleTableViewController = [[PeopleTableViewController alloc] init];
-    self.splitTableViewController = [[SplitTableViewController alloc] init];
+//    self.splitTableViewController = [[SplitTableViewController alloc] init];
     
     [DataModel sharedInstance];
   }
