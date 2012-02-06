@@ -15,6 +15,9 @@
 
 @interface SplitTableViewController()
 
+@property (nonatomic, strong) NSManagedObjectContext *context;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedItemResultsController;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedPersonResultsController;
 @property (nonatomic, strong) UITableView *itemsTableView;
 @property (nonatomic, strong) UITableView *peopleTableView;
 @property (nonatomic, strong) UITableViewCell *currentlySelectedTableViewCell;
@@ -40,8 +43,9 @@
 #define ContributorTag 3
 #define NonContributorTag 4
 
-@synthesize itemsArray;
-@synthesize peopleArray;
+@synthesize context;
+@synthesize fetchedItemResultsController;
+@synthesize fetchedPersonResultsController;
 @synthesize itemsTableView;
 @synthesize peopleTableView;
 @synthesize currentlySelectedTableViewCell;
@@ -54,9 +58,29 @@
   if (self)
   {
     self.title = @"Split";
-    self.itemsArray = [DataModel sharedInstance].itemsArray;
-    self.peopleArray = [DataModel sharedInstance].peopleArray;
     self.currentlySelectedPeople = [NSMutableArray array];
+    
+    self.context = [DataModel sharedInstance].context;
+    NSFetchRequest *fetchItemsRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    fetchItemsRequest.sortDescriptors = sortDescriptors;
+    self.fetchedItemResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchItemsRequest 
+                                                                            managedObjectContext:self.context
+                                                                              sectionNameKeyPath:nil
+                                                                                       cacheName:nil];
+    self.fetchedItemResultsController.delegate = self;
+    NSError *error;
+    [self.fetchedItemResultsController performFetch:&error];
+    
+    NSFetchRequest *fetchPeopleRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+    fetchPeopleRequest.sortDescriptors = sortDescriptors;
+    self.fetchedPersonResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchPeopleRequest 
+                                                                              managedObjectContext:self.context
+                                                                                sectionNameKeyPath:nil
+                                                                                         cacheName:nil];
+    self.fetchedPersonResultsController.delegate = self;
+    [self.fetchedPersonResultsController performFetch:&error];
   }
   return self;
 }
@@ -87,9 +111,14 @@
 {
   [super viewWillAppear:animated];
   
+  NSError *error;
+  [self.fetchedItemResultsController performFetch:&error];
+  [self.fetchedPersonResultsController performFetch:&error];
+  
   [self.itemsTableView reloadData];
   [self.peopleTableView reloadData];
   
+  //boat
   if (self.currentlySelectedTableViewCell != nil)
   {
     NSIndexPath *indexPath = [self.itemsTableView indexPathForCell:self.currentlySelectedTableViewCell];
@@ -115,7 +144,7 @@
 - (void)split:(UIBarButtonItem *)barButton
 {
   NSIndexPath *indexPath = [self.itemsTableView indexPathForCell:self.currentlySelectedTableViewCell];
-  Item *item = [self.itemsArray objectAtIndex:indexPath.row];
+  Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
   
   SplitItemViewController *splitItemViewController = [[SplitItemViewController alloc] initWithItem:item andPeople:self.currentlySelectedPeople];
   
@@ -132,7 +161,7 @@
   if ([tableView isEqual:self.itemsTableView])
   {
     ItemTableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:ItemIdentifier];
-    Item *item = [self.itemsArray objectAtIndex:indexPath.row];
+    Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
     if (cell == nil)
       cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:ItemIdentifier item:item];
     cell.textLabel.text = item.name;
@@ -149,7 +178,7 @@
     if (cell == nil)
       cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:PersonIdentifier];
     
-    Person *person = [self.peopleArray objectAtIndex:indexPath.row];
+    Person *person = [self.fetchedPersonResultsController objectAtIndexPath:indexPath];
     cell.textLabel.text = person.name;
     cell.selectionStyle=UITableViewCellSelectionStyleNone;    
     
@@ -164,9 +193,9 @@
   NSInteger i;
   
   if ([tableView isEqual:self.itemsTableView])
-    i = [self.itemsArray count];
+    i = [[[self.fetchedItemResultsController sections] objectAtIndex:section] numberOfObjects];
   if ([tableView isEqual:self.peopleTableView])
-    i = [self.peopleArray count];
+    i = [[[self.fetchedPersonResultsController sections] objectAtIndex:section] numberOfObjects];
   return i;
 }
 
@@ -183,28 +212,28 @@
     else
       self.currentlySelectedTableViewCell = cell;
   
-    else
-      if ([tableView isEqual:self.peopleTableView])
+  else
+    if ([tableView isEqual:self.peopleTableView])
+    {
+      [self.peopleTableView beginUpdates];
+      Person *person = [self.fetchedPersonResultsController.fetchedObjects objectAtIndex:indexPath.row];
+      if (cell.tag == ContributorTag)
       {
-        [self.peopleTableView beginUpdates];
-        Person *person = [self.peopleArray objectAtIndex:indexPath.row];
-        if (cell.tag == ContributorTag)
-        {
-          cell.backgroundColor = NonContributorBackgroundColor;
-          cell.textLabel.backgroundColor = NonContributorBackgroundColor;
-          cell.tag = NonContributorTag;
-          [self.currentlySelectedPeople removeObject:person];
-        }
-        else
-        {
-          cell.tag = ContributorTag;
-          cell.backgroundColor = ContributorBackgroundColor;
-          cell.textLabel.backgroundColor = ContributorBackgroundColor;
-          [self.currentlySelectedPeople addObject:person];
-        }
+        cell.backgroundColor = NonContributorBackgroundColor;
+        cell.textLabel.backgroundColor = NonContributorBackgroundColor;
+        cell.tag = NonContributorTag;
+        [self.currentlySelectedPeople removeObject:person];
+      }
+      else
+      {
+        cell.tag = ContributorTag;
+        cell.backgroundColor = ContributorBackgroundColor;
+        cell.textLabel.backgroundColor = ContributorBackgroundColor;
+        [self.currentlySelectedPeople addObject:person];
+      }
         
-        [self.peopleTableView endUpdates];
-      }  
+      [self.peopleTableView endUpdates];
+    }
   
   if (([self.currentlySelectedPeople count] > 0) && (self.currentlySelectedTableViewCell != nil))
     self.rightBarButtonItem.enabled = YES;

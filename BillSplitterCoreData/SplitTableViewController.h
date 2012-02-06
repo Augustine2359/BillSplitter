@@ -8,9 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SplitTableViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
-
-@property (nonatomic, strong) NSMutableArray *itemsArray;
-@property (nonatomic, strong) NSMutableArray *peopleArray;
+@interface SplitTableViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate>
 
 @end

@@ -15,8 +15,6 @@
 @synthesize model;
 @synthesize coordinator;
 
-@synthesize itemsArray;
-@synthesize peopleArray;
 @synthesize currencyFormatter;
 @synthesize isGstIncluded;
 @synthesize isServiceTaxIncluded;
@@ -30,8 +28,6 @@
     myInstance = [[[self class] alloc] init];
 //    myInstance.context = [[NSManagedObjectContext alloc] init];
     
-    myInstance.itemsArray = [NSMutableArray array];
-    myInstance.peopleArray = [NSMutableArray array];
     myInstance.currencyFormatter = [[NSNumberFormatter alloc] init];
     myInstance.currencyFormatter.numberStyle = NSNumberFormatterCurrencyStyle;
     myInstance.isGstIncluded = NO;
@@ -43,7 +39,18 @@
 
 - (void)refreshFinalPrices
 {
-  for (Item *item in itemsArray)
+  NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
+  NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"basePrice" ascending:NO];
+  NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+  fetchRequest.sortDescriptors = sortDescriptors;
+  NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                                             managedObjectContext:self.context
+                                                                                               sectionNameKeyPath:nil
+                                                                                                        cacheName:nil];
+  NSError *error;
+  [fetchedResultsController performFetch:&error];
+
+  for (Item *item in fetchedResultsController.fetchedObjects)
   {
     CGFloat finalPrice = [item.basePrice floatValue];
     if (self.isGstIncluded)

@@ -12,6 +12,8 @@
 
 @interface SplitItemViewController()
 
+@property (nonatomic, strong) NSManagedObjectContext *context;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedContributionResultsController;
 @property (nonatomic, strong) UITableView *peopleTableView;
 @property (nonatomic, strong) Item *item;
 @property (nonatomic, strong) NSArray *peopleArray;
@@ -19,11 +21,14 @@
 @property (nonatomic, strong) UILabel *totalAmountContributedLabel;
 
 - (void)calculateTotalAmountContributed;
+- (void)splitEvenly;
 
 @end
 
 @implementation SplitItemViewController
 
+@synthesize context;
+@synthesize fetchedContributionResultsController;
 @synthesize peopleTableView;
 @synthesize item;
 @synthesize peopleArray;
@@ -38,37 +43,53 @@
     self.item = theItem;
     self.title = self.item.name;
     self.peopleArray = people;
-
-    for (Contribution *contribution in self.item.contributions)
-    {
-      if (![self.peopleArray containsObject:contribution.person])
-        [self.item removeContributionObject:contribution];
-    }
-
-    NSManagedObjectContext *context = [DataModel sharedInstance].context;
     
+    self.context = [DataModel sharedInstance].context;
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Contribution"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"item == %@", self.item];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"person.name" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    fetchRequest.predicate = predicate;
+    fetchRequest.sortDescriptors = sortDescriptors;
+    
+    self.fetchedContributionResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                                    managedObjectContext:self.context
+                                                                                      sectionNameKeyPath:nil
+                                                                                               cacheName:nil];
+    NSError *error;
+    [self.fetchedContributionResultsController performFetch:&error];
+    
+    for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+      if (![self.peopleArray containsObject:contribution.person])
+        [self.context deleteObject:contribution]; //boat how to test this
+
     for (Person *person in self.peopleArray)
     {
-      BOOL contributorFound = NO;
-      for (Contribution *contribution in self.item.contributions)
+      BOOL isContributor = NO;
+      for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
       {
         if ([contribution.person isEqual:person])
-          contributorFound = YES;
+          isContributor = YES;
         break;
       }
-      if (!contributorFound)
+      if (!isContributor)
       {
-        Contribution *contribution = (Contribution *)[NSEntityDescription insertNewObjectForEntityForName:@"Contribution" inManagedObjectContext:context];
+        Contribution *contribution = (Contribution *)[NSEntityDescription insertNewObjectForEntityForName:@"Contribution"
+                                                                                   inManagedObjectContext:self.context];
         contribution.amount = [NSNumber numberWithFloat:0];
         contribution.person = person;
-        contribution.item = self.item;
-        
-        [self.item.contributions addObject:contribution];
-        [person.contributions addObject:contribution];        
+        contribution.item = self.item;        
       }
+      
+      [self.fetchedContributionResultsController performFetch:&error];
     }
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Split evenly" 
+                                                                              style:UIBarButtonItemStylePlain 
+                                                                             target:self
+                                                                             action:@selector(splitEvenly)];
   }
-  
+
   return self;
 }
 
@@ -88,14 +109,14 @@
   self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height - self.priceLabel.frame.size.height) style:UITableViewStylePlain];
   self.peopleTableView.dataSource = self;
   self.peopleTableView.delegate = self;
-  [self.view addSubview:self.peopleTableView];
+  [self.view addSubview:self.peopleTableView];  
 }
 
 - (void)calculateTotalAmountContributed
 {
   CGFloat totalAmountContributed = 0;
   
-  for (Contribution *contribution in self.item.contributions)
+  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
     totalAmountContributed += [contribution.amount floatValue];
   
   if (totalAmountContributed < [item.finalPrice floatValue])
@@ -105,6 +126,19 @@
   
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   self.totalAmountContributedLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:[NSNumber numberWithFloat:totalAmountContributed]]];
+}
+
+#pragma mark - Action methods
+
+- (void)splitEvenly
+{
+  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+    contribution.amount = [NSNumber numberWithFloat:[self.item.finalPrice floatValue] / self.fetchedContributionResultsController.fetchedObjects.count];
+  
+  NSError *error;
+  [self.fetchedContributionResultsController performFetch:&error];
+  
+  [self.peopleTableView reloadData];
 }
 
 #pragma mark - UITableView DataSource
@@ -123,11 +157,12 @@
 
   NSNumber *amount;
   
-  for (Contribution *contribution in person.contributions)
+  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
   {
-    if ([contribution.item isEqual:self.item])
+    if ([contribution.person isEqual:person])
     {
       amount = contribution.amount;
+
       break;
     }
   }
