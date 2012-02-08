@@ -96,7 +96,7 @@
   Person *person = (Person *)[NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:self.context];
   person.name = [NSString stringWithFormat:@"Person %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
                  + 65]; //use ASCII
-  person.contributions = [NSMutableSet set];
+  person.contributions = [NSSet set];
   
   [self.peopleTableView beginUpdates];
   [self.peopleTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];

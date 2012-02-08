@@ -43,45 +43,32 @@
     self.item = theItem;
     self.title = self.item.name;
     self.peopleArray = people;
-    
+
     self.context = [DataModel sharedInstance].context;
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Contribution"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"item == %@", self.item];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"person.name" ascending:YES];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    fetchRequest.predicate = predicate;
-    fetchRequest.sortDescriptors = sortDescriptors;
-    
-    self.fetchedContributionResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                                    managedObjectContext:self.context
-                                                                                      sectionNameKeyPath:nil
-                                                                                               cacheName:nil];
-    NSError *error;
-    [self.fetchedContributionResultsController performFetch:&error];
-    
-    for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+
+    for (Contribution *contribution in self.item.contributions)
       if (![self.peopleArray containsObject:contribution.person])
-        [self.context deleteObject:contribution]; //boat how to test this
+        [contribution deleteFromContext:self.context];
 
     for (Person *person in self.peopleArray)
     {
       BOOL isContributor = NO;
-      for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+      for (Contribution *contribution in person.contributions)
       {
-        if ([contribution.person isEqual:person])
+        if ([contribution.item isEqual:self.item])
           isContributor = YES;
         break;
       }
+
       if (!isContributor)
       {
         Contribution *contribution = (Contribution *)[NSEntityDescription insertNewObjectForEntityForName:@"Contribution"
                                                                                    inManagedObjectContext:self.context];
         contribution.amount = [NSNumber numberWithFloat:0];
         contribution.person = person;
-        contribution.item = self.item;        
+        contribution.item = self.item;
+        [contribution addToRelatedObjects];
       }
-      
-      [self.fetchedContributionResultsController performFetch:&error];
     }
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Split evenly" 
@@ -116,7 +103,8 @@
 {
   CGFloat totalAmountContributed = 0;
   
-  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+//  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+  for (Contribution *contribution in self.item.contributions)
     totalAmountContributed += [contribution.amount floatValue];
   
   if (totalAmountContributed < [item.finalPrice floatValue])
@@ -132,13 +120,11 @@
 
 - (void)splitEvenly
 {
-  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
-    contribution.amount = [NSNumber numberWithFloat:[self.item.finalPrice floatValue] / self.fetchedContributionResultsController.fetchedObjects.count];
-  
-  NSError *error;
-  [self.fetchedContributionResultsController performFetch:&error];
-  
+  for (Contribution *contribution in self.item.contributions)
+    contribution.amount = [NSNumber numberWithFloat:[self.item.finalPrice floatValue] / [self.item.contributions count]];
+    
   [self.peopleTableView reloadData];
+  [self calculateTotalAmountContributed];
 }
 
 #pragma mark - UITableView DataSource
@@ -157,9 +143,9 @@
 
   NSNumber *amount;
   
-  for (Contribution *contribution in self.fetchedContributionResultsController.fetchedObjects)
+  for (Contribution *contribution in person.contributions)
   {
-    if ([contribution.person isEqual:person])
+    if ([contribution.item isEqual:self.item])
     {
       amount = contribution.amount;
 

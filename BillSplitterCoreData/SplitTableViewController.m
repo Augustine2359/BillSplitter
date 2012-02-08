@@ -30,10 +30,10 @@
 
 @implementation SplitTableViewController
 
-#define UnsettledItemBackgroundColor [UIColor redColor]
-#define UnsettledItemTextColor [UIColor redColor]
-#define SettledItemBackgroundColor [UIColor greenColor]
-#define SettledItemTextColor [UIColor whiteColor]
+#define UNSETTLED_ITEM_BACKGROUND_COLOR [UIColor redColor]
+#define UNSETTLED_ITEM_TEXT_COLOR [UIColor redColor]
+#define SETTLED_ITEM_BACKGROUND_COLOR [UIColor greenColor]
+#define SETTLED_ITEM_TEXT_COLOR [UIColor blackColor]
 
 #define NonContributorBackgroundColor [UIColor whiteColor]
 #define ContributorBackgroundColor [UIColor blueColor]
@@ -165,10 +165,22 @@
     if (cell == nil)
       cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:ItemIdentifier item:item];
     cell.textLabel.text = item.name;
+    cell.selectionStyle=UITableViewCellSelectionStyleBlue;
+
     NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
-    cell.selectionStyle=UITableViewCellSelectionStyleBlue;
-    
+    NSNumber *totalContributions = [item calculateContributions];
+    if ([totalContributions floatValue] < [item.finalPrice floatValue])
+    {
+      cell.detailTextLabel.textColor = UNSETTLED_ITEM_TEXT_COLOR;
+      cell.textLabel.textColor = UNSETTLED_ITEM_TEXT_COLOR;
+    }
+    else
+    {
+      cell.detailTextLabel.textColor = SETTLED_ITEM_TEXT_COLOR;
+      cell.textLabel.textColor = SETTLED_ITEM_TEXT_COLOR;
+    }
+
     return cell;
   }
   
@@ -245,11 +257,6 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  if ([tableView isEqual:self.itemsTableView])
-  {
-    cell.textLabel.textColor = UnsettledItemTextColor;
-    cell.detailTextLabel.textColor = UnsettledItemTextColor;
-  }
   if ([tableView isEqual:self.peopleTableView])
   {
     if (cell.tag == NonContributorTag)

@@ -12,11 +12,17 @@
 @class Contribution;
 
 @interface Item : NSManagedObject
+{
+  NSSet *contributions;
+}
 
 @property (nonatomic, retain) NSNumber * basePrice;
 @property (nonatomic, retain) NSNumber * finalPrice;
 @property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSMutableSet *contributions;
+@property (nonatomic, retain) NSSet *contributions;
+
+- (NSNumber *)calculateContributions;
+- (void)reduceContributions:(CGFloat)oldFinalPrice;
 
 @end
 
@@ -26,4 +32,5 @@
 - (void)removeContributionObject:(Contribution *)value;
 - (void)addContribution:(NSSet *)values;
 - (void)removeContribution:(NSSet *)values;
+
 @end

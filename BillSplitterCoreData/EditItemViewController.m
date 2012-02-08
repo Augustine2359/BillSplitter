@@ -77,6 +77,7 @@
   }
   else
   {
+    CGFloat oldFinalPrice = [self.item.finalPrice floatValue];
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     self.item.basePrice = [numberFormatter numberFromString:[self.basePriceTextField.text substringFromIndex:1]];
     CGFloat finalPrice = [self.item.basePrice floatValue];
@@ -84,9 +85,13 @@
       finalPrice *= 1.07;
     if ([DataModel sharedInstance].isServiceTaxIncluded)
       finalPrice *= 1.10;
+
     //    numberFormatter = [DataModel sharedInstance].currencyFormatter;
     self.item.finalPrice = [NSNumber numberWithFloat:finalPrice];
-    
+
+    if ([[self.item calculateContributions] floatValue] > finalPrice)
+      [self.item reduceContributions:oldFinalPrice];
+
     [self.basePriceTextField resignFirstResponder];
   }
   

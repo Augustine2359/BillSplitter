@@ -12,6 +12,11 @@
 #import "DataModel.h"
 #import "ItemTableViewCell.h"
 
+#define UNSETTLED_ITEM_BACKGROUND_COLOR [UIColor redColor]
+#define UNSETTLED_ITEM_TEXT_COLOR [UIColor redColor]
+#define SETTLED_ITEM_BACKGROUND_COLOR [UIColor greenColor]
+#define SETTLED_ITEM_TEXT_COLOR [UIColor blackColor]
+
 @interface ItemsTableViewController()
 
 @property (nonatomic, strong) UITableView *itemsTableView;
@@ -96,8 +101,10 @@
 
   Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:self.context];
   item.name = [NSString stringWithFormat:@"Item %d", [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects] + 1];
-  item.contributions = [NSMutableSet set];
-
+  item.basePrice = [NSNumber numberWithFloat:0];
+  item.finalPrice = [NSNumber numberWithFloat:0];
+  [item setContributions:[NSSet set]];
+  
   [self.itemsTableView beginUpdates];
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
  
@@ -119,10 +126,16 @@
     cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier item:item];
   
   cell.textLabel.text = item.name;
-  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-  cell.detailTextLabel.text = cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
-  
+  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
+  cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
+
+  NSNumber *totalContributions = [item calculateContributions];
+  if ([totalContributions floatValue] < [item.finalPrice floatValue])
+    cell.detailTextLabel.textColor = UNSETTLED_ITEM_TEXT_COLOR;
+  else
+    cell.detailTextLabel.textColor = SETTLED_ITEM_TEXT_COLOR;
+
   return cell;
 }
 

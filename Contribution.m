@@ -16,4 +16,16 @@
 @dynamic item;
 @dynamic person;
 
+- (void)deleteFromContext:(NSManagedObjectContext *)context
+{
+  [self.item removeContributionObject:self];
+  [self.person removeContributionObject:self];
+  [context deleteObject:self];
+}
+- (void)addToRelatedObjects
+{
+  [self.person addContributionObject:self];
+  [self.item addContributionObject:self];
+}
+
 @end

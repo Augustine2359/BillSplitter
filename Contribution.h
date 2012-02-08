@@ -17,4 +17,7 @@
 @property (nonatomic, retain) Item *item;
 @property (nonatomic, retain) Person *person;
 
+- (void)deleteFromContext:(NSManagedObjectContext *)context;
+- (void)addToRelatedObjects;
+
 @end

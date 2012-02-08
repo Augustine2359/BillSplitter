@@ -12,9 +12,14 @@
 @class Contribution;
 
 @interface Person : NSManagedObject
+{
+  NSSet *contributions;
+}
 
 @property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSMutableSet *contributions;
+@property (nonatomic, retain) NSSet *contributions;
+
+- (NSNumber *)calculateContributions;
 
 @end
 
@@ -24,4 +29,5 @@
 - (void)removeContributionObject:(Contribution *)value;
 - (void)addContribution:(NSSet *)values;
 - (void)removeContribution:(NSSet *)values;
+
 @end
