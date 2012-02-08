@@ -89,8 +89,7 @@
     //    numberFormatter = [DataModel sharedInstance].currencyFormatter;
     self.item.finalPrice = [NSNumber numberWithFloat:finalPrice];
 
-    if ([[self.item calculateContributions] floatValue] > finalPrice)
-      [self.item reduceContributions:oldFinalPrice];
+    [self.item reduceContributions:oldFinalPrice];
 
     [self.basePriceTextField resignFirstResponder];
   }

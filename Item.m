@@ -37,14 +37,14 @@
 
 - (void)reduceContributions:(CGFloat)oldFinalPrice
 {
-  CGFloat difference = oldFinalPrice - [self.finalPrice floatValue];
-
-  for (Contribution *contribution in self.contributions)
-  {
-    CGFloat contributorsCount = [self.contributions count];
-    CGFloat amount = [contribution.amount floatValue] - difference/contributorsCount;
-    contribution.amount = [NSNumber numberWithFloat:amount];
-  }
+  if ([[self calculateContributions] floatValue] > [self.finalPrice floatValue])
+    for (Contribution *contribution in self.contributions)
+    {
+      if ([contribution.amount isEqualToNumber:[NSNumber numberWithFloat:0]])
+        continue;
+      CGFloat amount = [contribution.amount floatValue]/oldFinalPrice*[self.finalPrice floatValue];
+      contribution.amount = [NSNumber numberWithFloat:amount];
+    }
 }
 
 - (void)addContributionObject:(Contribution *)value

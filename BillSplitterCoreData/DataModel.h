@@ -19,6 +19,6 @@
 @property (nonatomic) BOOL isServiceTaxIncluded;
 
 + (DataModel *)sharedInstance;
-- (void)refreshFinalPrices;
+- (void)updateFinalPrices;
 
 @end

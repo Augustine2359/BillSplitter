@@ -113,10 +113,12 @@
   
   UITableViewCell *cell = [self.peopleTableView dequeueReusableCellWithIdentifier:MyIdentifier];
   if (cell == nil)
-    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MyIdentifier];
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier];
   
   Person *person = [self.fetchedResultsController.fetchedObjects objectAtIndex:indexPath.row];
   cell.textLabel.text = person.name;
+  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
+  cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:[person calculateContributions]]];
   
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
   

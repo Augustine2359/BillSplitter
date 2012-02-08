@@ -8,6 +8,13 @@
 
 #import "DataModel.h"
 #import "Item.h"
+#import "Contribution.h"
+
+@interface DataModel()
+
+- (void)updateContributionsForTax:(CGFloat)ratio;
+
+@end
 
 @implementation DataModel
 
@@ -37,7 +44,7 @@
   return myInstance;
 }
 
-- (void)refreshFinalPrices
+- (void)updateFinalPrices
 {
   NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
   NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"basePrice" ascending:NO];
@@ -50,14 +57,42 @@
   NSError *error;
   [fetchedResultsController performFetch:&error];
 
+  CGFloat oldFinalPrice;
+  CGFloat finalPrice;
+
   for (Item *item in fetchedResultsController.fetchedObjects)
   {
-    CGFloat finalPrice = [item.basePrice floatValue];
+    oldFinalPrice = [item.finalPrice floatValue];
+    finalPrice = [item.basePrice floatValue];
     if (self.isGstIncluded)
       finalPrice *= 1.07;
     if (self.isServiceTaxIncluded)
       finalPrice *= 1.10;
     item.finalPrice = [NSNumber numberWithFloat:finalPrice];
+  }
+  
+  [self updateContributionsForTax:finalPrice/oldFinalPrice];
+}
+
+- (void)updateContributionsForTax:(CGFloat)ratio
+{
+  NSLog(@"%f", ratio);
+  NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Contribution"];
+  NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"amount" ascending:NO];
+  NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+  fetchRequest.sortDescriptors = sortDescriptors;
+  NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                                             managedObjectContext:self.context
+                                                                                               sectionNameKeyPath:nil
+                                                                                                        cacheName:nil];
+  NSError *error;
+  [fetchedResultsController performFetch:&error];
+  
+  for (Contribution *contribution in fetchedResultsController.fetchedObjects)
+  {
+    CGFloat amount = [contribution.amount floatValue];
+    amount *= ratio;
+    contribution.amount = [NSNumber numberWithFloat:amount];
   }
 }
 

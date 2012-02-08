@@ -133,13 +133,13 @@
 - (IBAction)gstToggle:(UISwitch *)theSwitch
 {
   [DataModel sharedInstance].isGstIncluded = theSwitch.on;
-  [[DataModel sharedInstance] refreshFinalPrices];
+  [[DataModel sharedInstance] updateFinalPrices];
 }
 
 - (IBAction)serviceTaxToggle:(UISwitch *)theSwitch
 {
   [DataModel sharedInstance].isServiceTaxIncluded = theSwitch.on;
-  [[DataModel sharedInstance] refreshFinalPrices];
+  [[DataModel sharedInstance] updateFinalPrices];
 }
 
 @end
