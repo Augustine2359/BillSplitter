@@ -35,6 +35,12 @@
   return [NSNumber numberWithFloat:amount];
 }
 
+- (NSNumber *)unpaidPortion
+{
+  CGFloat unpaidPortion = [self.finalPrice floatValue] - [[self calculateContributions] floatValue];
+  return [NSNumber numberWithFloat:unpaidPortion];
+}
+
 - (void)reduceContributions:(CGFloat)oldFinalPrice
 {
   if ([[self calculateContributions] floatValue] > [self.finalPrice floatValue])

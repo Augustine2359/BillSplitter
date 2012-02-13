@@ -103,6 +103,7 @@
   NSError *error;
   [self.fetchedResultsController performFetch:&error];  
   [self.peopleTableView endUpdates];  
+  [self.peopleTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
 #pragma mark - UITableView DataSource

@@ -76,7 +76,6 @@
 
 - (void)updateContributionsForTax:(CGFloat)ratio
 {
-  NSLog(@"%f", ratio);
   NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Contribution"];
   NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"amount" ascending:NO];
   NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];

@@ -100,18 +100,18 @@
   NSArray *array = [NSArray arrayWithObject:indexPath];
 
   Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:self.context];
-  item.name = [NSString stringWithFormat:@"Item %d", [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects] + 1];
+  item.name = [NSString stringWithFormat:@"Item %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
+               + 65];
   item.basePrice = [NSNumber numberWithFloat:0];
   item.finalPrice = [NSNumber numberWithFloat:0];
   [item setContributions:[NSSet set]];
   
   [self.itemsTableView beginUpdates];
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
- 
   NSError *error;
   [self.fetchedResultsController performFetch:&error];
-
   [self.itemsTableView endUpdates];
+  [self.itemsTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
 #pragma mark - UITableView DataSource
