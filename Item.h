@@ -22,6 +22,7 @@
 @property (nonatomic, retain) NSSet *contributions;
 
 - (NSNumber *)calculateContributions;
+- (NSNumber *)unpaidPortion;
 - (void)reduceContributions:(CGFloat)oldFinalPrice;
 
 @end

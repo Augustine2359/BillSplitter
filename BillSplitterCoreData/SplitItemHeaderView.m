@@ -7,6 +7,7 @@
 //
 
 #import "SplitItemHeaderView.h"
+#import "DataModel.h"
 
 @implementation SplitItemHeaderView
 
@@ -28,6 +29,12 @@
       [self addSubview:self.button];
     }
     return self;
+}
+
+- (void)updateContributionLabel:(NSNumber *)amount
+{
+  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
+  self.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];
 }
 
 @end

@@ -162,15 +162,52 @@
 {
   Contribution *contribution = [self.contributionsArray objectAtIndex:slider.tag];
   CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
+  CGFloat oldContributionAmount = [contribution.amount floatValue];
+  CGFloat newContributionAmount = slider.value * [self.item.finalPrice floatValue] / 100;
   
   [self.contributionsTableView beginUpdates];
+  contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
+
+  //it's a reduction in contribution
   if (slider.value < ratio * 100)
-    contribution.amount = [NSNumber numberWithFloat:slider.value * [self.item.finalPrice floatValue] / 100];
-  
-  SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
-  NSNumber *amount = contribution.amount;
-  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-  headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];
+  {
+    
+    SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
+    NSNumber *amount = contribution.amount;
+    NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
+    headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];    
+  }
+  //it's an increase in contribution
+  else
+  {
+    NSNumber *unpaidPortion = [self.item unpaidPortion];
+    CGFloat changeInAmount = newContributionAmount - oldContributionAmount;
+    if (changeInAmount > [unpaidPortion floatValue]) //if there's no spare amount that hasn't been paid for
+    {
+      NSUInteger numberOfZeroContributions = 0;
+      for (Contribution *otherContribution in self.contributionsArray)
+        if ([otherContribution.amount floatValue] == 0)
+          numberOfZeroContributions++;
+      
+      changeInAmount /= [self.contributionsArray count] - 1 - numberOfZeroContributions; //the eaten part is split evenly
+
+      for (Contribution *otherContribution in self.contributionsArray)
+      {
+        if ([otherContribution isEqual:contribution])
+          continue;
+        CGFloat amount = [otherContribution.amount floatValue]; //their current amount
+        if (amount > changeInAmount)
+          otherContribution.amount = [NSNumber numberWithFloat:amount - changeInAmount]; //reduce by however much
+        else
+          otherContribution.amount = [NSNumber numberWithFloat:0];
+        NSUInteger index = [self.contributionsArray indexOfObject:otherContribution]; //update their header views
+        SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:index];
+        [headerView updateContributionLabel:otherContribution.amount];
+      }
+    }
+    SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
+    [headerView updateContributionLabel:contribution.amount];
+  }
 
   [self.contributionsTableView endUpdates];
 }
