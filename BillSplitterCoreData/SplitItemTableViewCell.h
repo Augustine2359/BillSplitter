@@ -17,5 +17,6 @@
 @property (nonatomic, strong) UILabel *amountLabel;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier contribution:(Contribution *)theContribution;
+- (void)updateContributions;
 
 @end

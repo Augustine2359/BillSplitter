@@ -25,10 +25,15 @@
       self.percentageSlider = [[UISlider alloc] init];
       self.percentageSlider.minimumValue = 0;
       self.percentageSlider.maximumValue = 100;
-      self.percentageSlider.value = [self.contribution.amount floatValue] / [self.contribution.item.finalPrice floatValue] * 100;
+      [self updateContributions];
       [self.contentView addSubview:self.percentageSlider];
     }
     return self;
+}
+
+- (void)updateContributions
+{
+  self.percentageSlider.value = [self.contribution.amount floatValue] / [self.contribution.item.finalPrice floatValue] * 100;
 }
 
 @end

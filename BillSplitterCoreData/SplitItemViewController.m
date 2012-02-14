@@ -141,6 +141,8 @@
     contribution.amount = [NSNumber numberWithFloat:[self.item.finalPrice floatValue] / [self.item.contributions count]];
     
   [self.contributionsTableView reloadData];
+  for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
+    [cell updateContributions];
   [self calculateTotalAmountContributed];
 }
 
@@ -203,6 +205,13 @@
         NSUInteger index = [self.contributionsArray indexOfObject:otherContribution]; //update their header views
         SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:index];
         [headerView updateContributionLabel:otherContribution.amount];
+      }
+      for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
+      {
+        if (cell.percentageSlider.tag == slider.tag)
+          continue;
+        else
+          [cell updateContributions];
       }
     }
     SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
