@@ -62,7 +62,7 @@
     
     self.context = [DataModel sharedInstance].context;
     NSFetchRequest *fetchItemsRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
     NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
     fetchItemsRequest.sortDescriptors = sortDescriptors;
     self.fetchedItemResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchItemsRequest 
@@ -145,6 +145,10 @@
 {
   NSIndexPath *indexPath = [self.itemsTableView indexPathForCell:self.currentlySelectedTableViewCell];
   Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
+
+  NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+  NSArray *array = [NSArray arrayWithObject:sortDescriptor];
+  [self.currentlySelectedPeople sortedArrayUsingDescriptors:array];
   
   SplitItemViewController *splitItemViewController = [[SplitItemViewController alloc] initWithItem:item andPeople:self.currentlySelectedPeople];
   

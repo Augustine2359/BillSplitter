@@ -64,7 +64,7 @@
     
     for (Person *person in self.peopleArray)
     {
-      [self.sectionIsExpandedArray addObject:[NSNumber numberWithBool:NO]];
+      [self.sectionIsExpandedArray addObject:[NSNumber numberWithBool:YES]];
       [self.headerViewsArray addObject:[NSNull null]];
       BOOL isContributor = NO;
       for (Contribution *contribution in person.contributions)
@@ -188,7 +188,7 @@
     {
       NSUInteger numberOfZeroContributions = 0;
       for (Contribution *otherContribution in self.contributionsArray)
-        if ([otherContribution.amount floatValue] == 0)
+        if ((![otherContribution isEqual:contribution])&&([otherContribution.amount floatValue] == 0))
           numberOfZeroContributions++;
       
       changeInAmount /= [self.contributionsArray count] - 1 - numberOfZeroContributions; //the eaten part is split evenly
