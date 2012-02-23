@@ -92,19 +92,23 @@
   [super viewDidLoad];
   
   self.itemsButton.frame = CGRectMake(0, 0, self.view.frame.size.width/2, 100);
+  self.itemsButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [self.view addSubview:self.itemsButton];
   
   self.peopleButton.frame = CGRectMake(self.view.frame.size.width/2, 0, self.view.frame.size.width/2, 100);
+  self.peopleButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [self.view addSubview:self.peopleButton];
   
   self.splitBillButton.frame = CGRectMake(0, 100, self.view.frame.size.width, 100);
+  self.splitBillButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [self.view addSubview:self.splitBillButton];
   
   self.gstSwitch.frame = CGRectMake(0, 200, self.view.frame.size.width/2, 50);
-  
+  self.gstSwitch.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
   [self.view addSubview:self.gstSwitch];
   
   self.serviceTaxSwitch.frame = CGRectMake(self.view.frame.size.width/2, 200, self.view.frame.size.width/2, 50);
+  self.serviceTaxSwitch.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin;
   [self.view addSubview:self.serviceTaxSwitch];
 }
 

@@ -55,7 +55,8 @@
 {
   [super viewDidLoad];
   
-  self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height) style:UITableViewStylePlain];
+  self.peopleTableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+  self.peopleTableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
   self.peopleTableView.dataSource = self;
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
@@ -77,13 +78,6 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
   return YES;
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-  [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-  
-  self.peopleTableView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height);
 }
 
 #pragma mark - Action methods

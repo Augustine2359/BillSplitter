@@ -53,10 +53,12 @@
   //  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.navigationController action:@selector(popViewControllerAnimated:)];
   
   self.nameTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 100);
+  self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   self.nameTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.nameTextField];
   
   self.basePriceTextField.frame = CGRectMake(0.0, 110.0, self.view.frame.size.width, 100);
+  self.basePriceTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
   self.basePriceTextField.backgroundColor = [UIColor blueColor];
   [self.view addSubview:self.basePriceTextField];
 }

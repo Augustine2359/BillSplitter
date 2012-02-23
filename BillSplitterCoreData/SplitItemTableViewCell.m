@@ -9,6 +9,7 @@
 #import "SplitItemTableViewCell.h"
 #import "Item.h"
 
+#import "Person.h"
 @implementation SplitItemTableViewCell
 
 @synthesize contribution;
@@ -21,8 +22,8 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
       self.contribution = theContribution;
-
-      self.percentageSlider = [[UISlider alloc] init];
+      self.percentageSlider = [[UISlider alloc] initWithFrame:self.contentView.frame];
+      self.percentageSlider.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
       self.percentageSlider.minimumValue = 0;
       self.percentageSlider.maximumValue = 100;
       [self updateContributions];

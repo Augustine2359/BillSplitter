@@ -92,12 +92,14 @@
 {
   [super viewDidLoad];
   
-  self.itemsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width/2, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height) style:UITableViewStylePlain];
+  self.itemsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width/2, self.view.bounds.size.height) style:UITableViewStylePlain];
+  self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;
   [self.view addSubview:self.itemsTableView];
   
-  self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 + 1, 0, self.view.frame.size.width/2 - 1, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height) style:UITableViewStylePlain];
+  self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2 + 1, 0, self.view.bounds.size.width/2 - 1, self.view.bounds.size.height) style:UITableViewStylePlain];
+  self.peopleTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
   self.peopleTableView.dataSource = self;
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
@@ -131,14 +133,6 @@
   return YES;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-  [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-  
-  self.itemsTableView.frame = CGRectMake(0, 0, self.view.frame.size.width/2, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height);
-  self.peopleTableView.frame = CGRectMake(self.view.frame.size.width/2 + 1, 0, self.view.frame.size.width/2- 1, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height);
-}
-
 #pragma mark - Action methods
 
 - (void)split:(UIBarButtonItem *)barButton
@@ -146,10 +140,6 @@
   NSIndexPath *indexPath = [self.itemsTableView indexPathForCell:self.currentlySelectedTableViewCell];
   Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
 
-  NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
-  NSArray *array = [NSArray arrayWithObject:sortDescriptor];
-  [self.currentlySelectedPeople sortedArrayUsingDescriptors:array];
-  
   SplitItemViewController *splitItemViewController = [[SplitItemViewController alloc] initWithItem:item andPeople:self.currentlySelectedPeople];
   
   [self.navigationController pushViewController:splitItemViewController animated:YES];

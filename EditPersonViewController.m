@@ -46,6 +46,7 @@
   //  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.navigationController action:@selector(popViewControllerAnimated:)];
   
   self.nameTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 100);
+  self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   self.nameTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.nameTextField];
 }
@@ -64,9 +65,8 @@
     self.person.name = self.nameTextField.text;
     [self.nameTextField resignFirstResponder];
   }
-  //  self.navigationItem.leftBarButtonItem = nil;
-  //  self.navigationItem.backBarButtonItem = nil;
-  //  self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:self.navigationController action:@selector(popViewControllerAnimated:)];
+
+  [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - UITextFieldDelegate

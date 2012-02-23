@@ -61,7 +61,8 @@
 {
   [super viewDidLoad];
   
-  self.itemsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height) style:UITableViewStylePlain];
+  self.itemsTableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+  self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;
   [self.view addSubview:self.itemsTableView];
@@ -85,13 +86,6 @@
   return YES;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-  [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-  
-  self.itemsTableView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height);
-}
-
 #pragma mark - Action methods
 
 - (IBAction)addItem:(UIBarButtonItem *)barButton
@@ -102,8 +96,8 @@
   Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:self.context];
   item.name = [NSString stringWithFormat:@"Item %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
                + 65];
-  item.basePrice = [NSNumber numberWithFloat:0];
-  item.finalPrice = [NSNumber numberWithFloat:0];
+  item.basePrice = [NSNumber numberWithFloat:100];
+  item.finalPrice = [NSNumber numberWithFloat:100];
   [item setContributions:[NSSet set]];
   
   [self.itemsTableView beginUpdates];

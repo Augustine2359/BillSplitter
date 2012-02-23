@@ -52,7 +52,6 @@
     self.item = theItem;
     self.title = self.item.name;
     self.peopleArray = people;
-
     self.context = [DataModel sharedInstance].context;
 
     for (Contribution *contribution in self.item.contributions)
@@ -84,7 +83,10 @@
         [contribution addToRelatedObjects];
       }
     }
-    self.contributionsArray = [self.item.contributions allObjects];
+    
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"person.name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+    NSArray *array = [NSArray arrayWithObject:sortDescriptor];
+    self.contributionsArray = [[self.item.contributions allObjects] sortedArrayUsingDescriptors:array];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Split evenly" 
                                                                               style:UIBarButtonItemStylePlain 
@@ -102,19 +104,27 @@
 {
   [super viewDidLoad];
   
-  self.priceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 40.0 - self.navigationController.navigationBar.frame.size.height, self.view.frame.size.width/2, 40)];
+  self.priceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - 40.0, self.view.bounds.size.width/2, 40)];
+  self.priceLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   self.priceLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
   [self.view addSubview:self.priceLabel];
   
-  self.totalAmountContributedLabel = [[UILabel alloc] initWithFrame:CGRectOffset(self.priceLabel.frame, self.view.frame.size.width/2, 0)];
+  self.totalAmountContributedLabel = [[UILabel alloc] initWithFrame:CGRectOffset(self.priceLabel.frame, self.view.bounds.size.width/2, 0)];
+  self.totalAmountContributedLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin;
   [self calculateTotalAmountContributed];
   [self.view addSubview:self.totalAmountContributedLabel];
   
-  self.contributionsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - self.view.frame.origin.y - self.navigationController.navigationBar.frame.size.height - self.priceLabel.frame.size.height) style:UITableViewStylePlain];
+  self.contributionsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height - self.priceLabel.frame.size.height) style:UITableViewStylePlain];
+  self.contributionsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   self.contributionsTableView.dataSource = self;
   self.contributionsTableView.delegate = self;
   [self.view addSubview:self.contributionsTableView];  
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+  return YES;
 }
 
 - (void)calculateTotalAmountContributed
@@ -230,7 +240,7 @@
   if (cell == nil)
     cell = [[SplitItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier contribution:contribution];
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
-  cell.percentageSlider.frame = CGRectMake(0, 0, self.contributionsTableView.frame.size.width, 40);
+//  cell.percentageSlider.frame = CGRectMake(0, 0, self.contributionsTableView.frame.size.width, 40);
   cell.percentageSlider.tag = indexPath.section;
   [cell.percentageSlider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
   
@@ -256,7 +266,6 @@
   Contribution *contribution = [self.contributionsArray objectAtIndex:section];
 
   headerView.nameLabel.text= contribution.person.name;
-
   NSNumber *amount = contribution.amount;
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];
