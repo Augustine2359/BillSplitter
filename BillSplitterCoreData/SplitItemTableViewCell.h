@@ -12,8 +12,8 @@
 @interface SplitItemTableViewCell : UITableViewCell
 
 @property (nonatomic, strong) Contribution *contribution;
-@property (nonatomic, strong) UILabel *percentageLabel;
 @property (nonatomic, strong) UISlider *percentageSlider;
+@property (nonatomic, strong) UITextField *percentageTextField;
 @property (nonatomic, strong) UILabel *amountLabel;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier contribution:(Contribution *)theContribution;

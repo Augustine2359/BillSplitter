@@ -115,7 +115,7 @@
   [self calculateTotalAmountContributed];
   [self.view addSubview:self.totalAmountContributedLabel];
   
-  self.contributionsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height - self.priceLabel.frame.size.height) style:UITableViewStylePlain];
+  self.contributionsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height - self.priceLabel.frame.size.height - 1) style:UITableViewStylePlain];
   self.contributionsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   self.contributionsTableView.dataSource = self;
   self.contributionsTableView.delegate = self;
@@ -168,8 +168,6 @@
     [self.contributionsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:button.tag] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
-#pragma mark - UITableView DataSource
-
 - (void)sliderValueChanged:(UISlider *)slider
 {
   Contribution *contribution = [self.contributionsArray objectAtIndex:slider.tag];
@@ -183,11 +181,13 @@
   //it's a reduction in contribution
   if (slider.value < ratio * 100)
   {
-    
     SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
     NSNumber *amount = contribution.amount;
     NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-    headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];    
+    headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];
+    for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
+      if (cell.percentageSlider.tag == slider.tag)
+        [cell updateContributions];
   }
   //it's an increase in contribution
   else
@@ -217,19 +217,16 @@
         [headerView updateContributionLabel:otherContribution.amount];
       }
       for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
-      {
-        if (cell.percentageSlider.tag == slider.tag)
-          continue;
-        else
-          [cell updateContributions];
-      }
+        [cell updateContributions];
     }
     SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
     [headerView updateContributionLabel:contribution.amount];
   }
-
+  
   [self.contributionsTableView endUpdates];
 }
+
+#pragma mark - UITableView DataSource
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {

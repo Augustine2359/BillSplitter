@@ -13,7 +13,7 @@
 @implementation SplitItemTableViewCell
 
 @synthesize contribution;
-@synthesize percentageLabel;
+@synthesize percentageTextField;
 @synthesize percentageSlider;
 @synthesize amountLabel;
 
@@ -22,12 +22,17 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
       self.contribution = theContribution;
-      self.percentageSlider = [[UISlider alloc] initWithFrame:self.contentView.frame];
-      self.percentageSlider.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+      self.percentageSlider = [[UISlider alloc] initWithFrame:CGRectMake(60, 0, self.contentView.frame.size.width - 60, self.contentView.frame.size.height)];
+      self.percentageSlider.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin;
       self.percentageSlider.minimumValue = 0;
       self.percentageSlider.maximumValue = 100;
-      [self updateContributions];
       [self.contentView addSubview:self.percentageSlider];
+
+      self.percentageTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 60, self.contentView.frame.size.height)];
+      self.percentageTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin;
+      [self.contentView addSubview:self.percentageTextField];
+
+      [self updateContributions];
     }
     return self;
 }
@@ -35,6 +40,7 @@
 - (void)updateContributions
 {
   self.percentageSlider.value = [self.contribution.amount floatValue] / [self.contribution.item.finalPrice floatValue] * 100;
+  self.percentageTextField.text = [NSString stringWithFormat:@"%.1f%%", self.percentageSlider.value];
 }
 
 @end

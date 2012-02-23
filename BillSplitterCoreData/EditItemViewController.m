@@ -34,7 +34,7 @@
     self.nameTextField = [[SplitterTextField alloc] init];
     self.nameTextField.text = self.item.name;
     self.nameTextField.delegate = self;
-    
+
     self.basePriceTextField = [[SplitterTextField alloc] init];
     self.basePriceTextField.keyboardType = UIKeyboardTypeDecimalPad;
     self.basePriceTextField.text = [NSString stringWithFormat:@"$%@", self.item.basePrice];
