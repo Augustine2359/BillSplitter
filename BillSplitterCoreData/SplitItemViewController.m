@@ -10,7 +10,6 @@
 #import "DataModel.h"
 #import "Contribution.h"
 #import "SplitItemTableViewCell.h"
-#import "SplitItemHeaderView.h"
 
 @interface SplitItemViewController()
 
@@ -22,7 +21,7 @@
 @property (nonatomic, strong) UILabel *priceLabel;
 @property (nonatomic, strong) UILabel *totalAmountContributedLabel;
 @property (nonatomic, strong) NSArray *contributionsArray;
-@property (nonatomic, strong) NSMutableArray *sectionIsExpandedArray;
+@property (nonatomic, strong) NSMutableArray *cellIsExpandedArray;
 @property (nonatomic, strong) NSMutableArray *headerViewsArray;
 
 - (void)calculateTotalAmountContributed;
@@ -40,7 +39,7 @@
 @synthesize peopleArray;
 @synthesize priceLabel;
 @synthesize totalAmountContributedLabel;
-@synthesize sectionIsExpandedArray;
+@synthesize cellIsExpandedArray;
 @synthesize contributionsArray;
 @synthesize headerViewsArray;
 
@@ -58,12 +57,12 @@
       if (![self.peopleArray containsObject:contribution.person])
         [contribution deleteFromContext:self.context];
 
-    self.sectionIsExpandedArray = [NSMutableArray array];
+    self.cellIsExpandedArray = [NSMutableArray array];
     self.headerViewsArray = [NSMutableArray array];
     
     for (Person *person in self.peopleArray)
     {
-      [self.sectionIsExpandedArray addObject:[NSNumber numberWithBool:YES]];
+      [self.cellIsExpandedArray addObject:[NSNumber numberWithBool:NO]];
       [self.headerViewsArray addObject:[NSNull null]];
       BOOL isContributor = NO;
       for (Contribution *contribution in person.contributions)
@@ -160,12 +159,12 @@
 {
   UIButton *button = sender;
 
-  [self.sectionIsExpandedArray replaceObjectAtIndex:button.tag withObject:[NSNumber numberWithBool:![[self.sectionIsExpandedArray objectAtIndex:button.tag] boolValue]]];
+  [self.cellIsExpandedArray replaceObjectAtIndex:button.tag withObject:[NSNumber numberWithBool:![[self.cellIsExpandedArray objectAtIndex:button.tag] boolValue]]];
   
   [self.contributionsTableView reloadData];
-  
-  if ([[self.sectionIsExpandedArray objectAtIndex:button.tag] boolValue])
-    [self.contributionsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:button.tag] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+
+  if ([[self.cellIsExpandedArray objectAtIndex:button.tag] boolValue])
+    [self.contributionsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:button.tag inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)sliderValueChanged:(UISlider *)slider
@@ -174,17 +173,15 @@
   CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
   CGFloat oldContributionAmount = [contribution.amount floatValue];
   CGFloat newContributionAmount = slider.value * [self.item.finalPrice floatValue] / 100;
-  
+
   [self.contributionsTableView beginUpdates];
   contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
+  for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
+    [cell updateContributions];
 
   //it's a reduction in contribution
   if (slider.value < ratio * 100)
   {
-    SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
-    NSNumber *amount = contribution.amount;
-    NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-    headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];
     for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
       if (cell.percentageSlider.tag == slider.tag)
         [cell updateContributions];
@@ -212,18 +209,18 @@
           otherContribution.amount = [NSNumber numberWithFloat:amount - changeInAmount]; //reduce by however much
         else
           otherContribution.amount = [NSNumber numberWithFloat:0];
-        NSUInteger index = [self.contributionsArray indexOfObject:otherContribution]; //update their header views
-        SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:index];
-        [headerView updateContributionLabel:otherContribution.amount];
       }
       for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
         [cell updateContributions];
     }
-    SplitItemHeaderView *headerView = [self.headerViewsArray objectAtIndex:slider.tag];
-    [headerView updateContributionLabel:contribution.amount];
+    for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
+      if (cell.percentageSlider.tag == slider.tag)
+        [cell updateContributions];
   }
   
   [self.contributionsTableView endUpdates];
+  
+  [self calculateTotalAmountContributed];
 }
 
 #pragma mark - UITableView DataSource
@@ -231,61 +228,54 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   static NSString* MyIdentifier = @"MyIdentifier";
-  Contribution *contribution = [self.contributionsArray objectAtIndex:indexPath.section];
-  
+  Contribution *contribution = [self.contributionsArray objectAtIndex:indexPath.row];
+
   SplitItemTableViewCell *cell = [self.contributionsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
   if (cell == nil)
+  {
     cell = [[SplitItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier contribution:contribution];
+  }
+  cell.contribution = contribution;
+  cell.nameLabel.text = contribution.person.name;
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
-//  cell.percentageSlider.frame = CGRectMake(0, 0, self.contributionsTableView.frame.size.width, 40);
-  cell.percentageSlider.tag = indexPath.section;
+  cell.percentageSlider.tag = indexPath.row;
   [cell.percentageSlider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+  cell.expandToggleButton.tag = indexPath.row;
+  [cell.expandToggleButton addTarget:self action:@selector(toggleExpanded:) forControlEvents:UIControlEventTouchDown];
   
+  [cell updateContributions];
+
   return cell;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  return [[self.sectionIsExpandedArray objectAtIndex:section] boolValue];
+  return [self.contributionsArray count];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-  return [self.contributionsArray count];
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-  SplitItemHeaderView *headerView = [[SplitItemHeaderView alloc] initWithFrame:CGRectMake(0, 0, self.contributionsTableView.frame.size.width, 40)];
-  headerView.button.tag = section;
-  [headerView.button addTarget:self action:@selector(toggleExpanded:) forControlEvents:UIControlEventTouchDown];
-  
-  Contribution *contribution = [self.contributionsArray objectAtIndex:section];
-
-  headerView.nameLabel.text= contribution.person.name;
-  NSNumber *amount = contribution.amount;
-  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-  headerView.contributionLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:amount]];
-  [self.headerViewsArray replaceObjectAtIndex:section withObject:headerView];
-
-  return headerView;
+  return 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-  return 40;
+  return 0;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-  return 1;
+  return 0;
 }
 
 #pragma mark - UITableView Delegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  return 40;
+  if ([[self.cellIsExpandedArray objectAtIndex:indexPath.row] boolValue])
+    return 80;
+  else
+    return 40;
 }
 
 @end

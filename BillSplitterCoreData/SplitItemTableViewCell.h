@@ -11,6 +11,10 @@
 
 @interface SplitItemTableViewCell : UITableViewCell
 
+@property (nonatomic, strong) UIButton *expandToggleButton;
+@property (nonatomic, strong) UILabel *nameLabel;
+@property (nonatomic, strong) UILabel *contributionLabel;
+
 @property (nonatomic, strong) Contribution *contribution;
 @property (nonatomic, strong) UISlider *percentageSlider;
 @property (nonatomic, strong) UITextField *percentageTextField;

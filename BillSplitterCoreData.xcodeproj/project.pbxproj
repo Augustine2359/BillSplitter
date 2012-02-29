@@ -29,7 +29,6 @@
 		F918FB5414DD13CF004E9262 /* SplitterTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5314DD13CF004E9262 /* SplitterTextField.m */; };
 		F918FB5714DD141F004E9262 /* ItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5614DD141F004E9262 /* ItemTableViewCell.m */; };
 		F9C56EE014E7D51700715029 /* SplitItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */; };
-		F9F30C5A14E9587D00248E0B /* SplitItemHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9F30C5914E9587D00248E0B /* SplitItemHeaderView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,8 +72,6 @@
 		F918FB5614DD141F004E9262 /* ItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemTableViewCell.m; sourceTree = "<group>"; };
 		F9C56EDE14E7D51700715029 /* SplitItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitItemTableViewCell.h; sourceTree = "<group>"; };
 		F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitItemTableViewCell.m; sourceTree = "<group>"; };
-		F9F30C5814E9587C00248E0B /* SplitItemHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitItemHeaderView.h; sourceTree = "<group>"; };
-		F9F30C5914E9587D00248E0B /* SplitItemHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitItemHeaderView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,8 +96,6 @@
 				F914427014DD17E10062EE72 /* SplitTableViewController.m */,
 				F914426C14DD179C0062EE72 /* SplitItemViewController.h */,
 				F914426D14DD179C0062EE72 /* SplitItemViewController.m */,
-				F9F30C5814E9587C00248E0B /* SplitItemHeaderView.h */,
-				F9F30C5914E9587D00248E0B /* SplitItemHeaderView.m */,
 				F9C56EDE14E7D51700715029 /* SplitItemTableViewCell.h */,
 				F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */,
 			);
@@ -275,7 +270,6 @@
 				F914428314DD35120062EE72 /* Contribution.m in Sources */,
 				F914428C14DD37ED0062EE72 /* Item.m in Sources */,
 				F9C56EE014E7D51700715029 /* SplitItemTableViewCell.m in Sources */,
-				F9F30C5A14E9587D00248E0B /* SplitItemHeaderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
