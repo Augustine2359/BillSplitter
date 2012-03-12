@@ -23,7 +23,7 @@
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
-- (void)addItem:(UIBarButtonItem *)barButton;
+- (void)addItem;
 
 @end
 
@@ -67,7 +67,7 @@
   self.itemsTableView.delegate = self;
   [self.view addSubview:self.itemsTableView];
   
-  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addItem:)];
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addItem)];
   self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
@@ -88,7 +88,7 @@
 
 #pragma mark - Action methods
 
-- (IBAction)addItem:(UIBarButtonItem *)barButton
+- (IBAction)addItem
 {
   NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects] inSection:0];
   NSArray *array = [NSArray arrayWithObject:indexPath];
@@ -105,6 +105,7 @@
   NSError *error;
   [self.fetchedResultsController performFetch:&error];
   [self.itemsTableView endUpdates];
+  indexPath = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:0];
   [self.itemsTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
@@ -115,15 +116,31 @@
   static NSString *MyIdentifier = @"MyIdentifier";
 
   ItemTableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
-  Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
+  Item *item;
+  
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
+    item = nil;
+  else
+    item = [self.fetchedResultsController objectAtIndexPath:indexPath];
+
   if (cell == nil)
     cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier item:item];
-  
+
+  cell.item = item;
+
   cell.textLabel.text = item.name;
+  cell.textLabel.textAlignment = UITextAlignmentLeft;
+  if (cell.textLabel.text == nil)
+  {
+    cell.textLabel.text = @"Tap here to add a new item";
+    cell.textLabel.textAlignment = UITextAlignmentCenter;
+  }
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
-
+  if (item.finalPrice == nil)
+    cell.detailTextLabel.text = nil;
+    
   NSNumber *totalContributions = [item calculateContributions];
   if ([totalContributions floatValue] < [item.finalPrice floatValue])
     cell.detailTextLabel.textColor = UNSETTLED_ITEM_TEXT_COLOR;
@@ -135,16 +152,21 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
+  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects] + 1;
 }
 
 #pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
-  EditItemViewController *editItemViewController = [[EditItemViewController alloc] initWithItem:item];
-  [self.navigationController pushViewController:editItemViewController animated:YES];
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects])
+    [self addItem];
+  else
+  {
+    Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    EditItemViewController *editItemViewController = [[EditItemViewController alloc] initWithItem:item];
+    [self.navigationController pushViewController:editItemViewController animated:YES];
+  }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

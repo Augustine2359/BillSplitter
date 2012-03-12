@@ -27,6 +27,7 @@
 - (void)calculateTotalAmountContributed;
 - (void)splitEvenly;
 - (void)toggleExpanded:(id)sender;
+- (void)save;
 
 @end
 
@@ -150,6 +151,7 @@
     contribution.amount = [NSNumber numberWithFloat:[self.item.finalPrice floatValue] / [self.item.contributions count]];
     
   [self.contributionsTableView reloadData];
+
   for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
     [cell updateContributions];
   [self calculateTotalAmountContributed];
@@ -165,6 +167,11 @@
 
   if ([[self.cellIsExpandedArray objectAtIndex:button.tag] boolValue])
     [self.contributionsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:button.tag inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+}
+
+- (void)save
+{
+  
 }
 
 - (void)sliderValueChanged:(UISlider *)slider
@@ -234,15 +241,17 @@
   if (cell == nil)
   {
     cell = [[SplitItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier contribution:contribution];
+    cell.contributionTextField.delegate = self;
+    cell.percentageTextField.delegate = self;
+    [cell.percentageSlider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
   }
   cell.contribution = contribution;
   cell.nameLabel.text = contribution.person.name;
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
   cell.percentageSlider.tag = indexPath.row;
-  [cell.percentageSlider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
   cell.expandToggleButton.tag = indexPath.row;
   [cell.expandToggleButton addTarget:self action:@selector(toggleExpanded:) forControlEvents:UIControlEventTouchDown];
-  
+
   [cell updateContributions];
 
   return cell;
@@ -276,6 +285,52 @@
     return 80;
   else
     return 40;
+}
+
+#pragma mark - UITextFieldDelegate
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+  [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save)] animated:NO];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+  
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+  BOOL shouldChange = YES;
+  
+  NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+  [numberFormatter numberFromString:string];
+  
+//  if ([textField isEqual:self.basePriceTextField])
+//  {
+//    if (range.location == 0) //trying to delete dollar sign
+//      shouldChange = NO;
+//    if (string.length > 1) //trying to paste text
+//      shouldChange = NO;
+//    
+//    NSCharacterSet *notAllowed = [[NSCharacterSet characterSetWithCharactersInString:@"1234567890."] invertedSet];
+//    if ((string.length > 0) && ([notAllowed characterIsMember:[string characterAtIndex:0]])) //trying to insert invalid character
+//      shouldChange = NO;
+//    
+//    NSMutableString *replacementString = [self.basePriceTextField.text mutableCopy];
+//    [replacementString replaceCharactersInRange:range withString:string];
+//    NSArray *chunks = [replacementString componentsSeparatedByString:@"."];
+//    if ([chunks count] > 2) //trying to place more than 1 .
+//      shouldChange = NO;
+//    
+//    if ([chunks count] == 2)
+//    {
+//      NSString *cents = [chunks objectAtIndex:1]; //trying to have more than 2 decimals
+//      if (cents.length > 2)
+//        shouldChange = NO;
+//    }
+//  }
+  return shouldChange;
 }
 
 @end

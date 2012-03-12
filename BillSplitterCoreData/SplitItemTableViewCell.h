@@ -13,7 +13,7 @@
 
 @property (nonatomic, strong) UIButton *expandToggleButton;
 @property (nonatomic, strong) UILabel *nameLabel;
-@property (nonatomic, strong) UILabel *contributionLabel;
+@property (nonatomic, strong) UITextField *contributionTextField;
 
 @property (nonatomic, strong) Contribution *contribution;
 @property (nonatomic, strong) UISlider *percentageSlider;

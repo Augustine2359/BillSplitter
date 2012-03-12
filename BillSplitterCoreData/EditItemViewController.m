@@ -72,30 +72,25 @@
 
 - (IBAction)save:(UIBarButtonItem *)barButton;
 {
-  if ([self.nameTextField isFirstResponder])
-  {
-    self.item.name = self.nameTextField.text;
-    [self.nameTextField resignFirstResponder];
-  }
-  else
-  {
-    CGFloat oldFinalPrice = [self.item.finalPrice floatValue];
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    self.item.basePrice = [numberFormatter numberFromString:[self.basePriceTextField.text substringFromIndex:1]];
-    CGFloat finalPrice = [self.item.basePrice floatValue];
-    if ([DataModel sharedInstance].isGstIncluded)
-      finalPrice *= 1.07;
-    if ([DataModel sharedInstance].isServiceTaxIncluded)
-      finalPrice *= 1.10;
-
-    //    numberFormatter = [DataModel sharedInstance].currencyFormatter;
-    self.item.finalPrice = [NSNumber numberWithFloat:finalPrice];
-
-    [self.item reduceContributions:oldFinalPrice];
-
-    [self.basePriceTextField resignFirstResponder];
-  }
+  self.item.name = self.nameTextField.text;
+  CGFloat oldFinalPrice = [self.item.finalPrice floatValue];
+  NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+  self.item.basePrice = [numberFormatter numberFromString:[self.basePriceTextField.text substringFromIndex:1]];
+  CGFloat finalPrice = [self.item.basePrice floatValue];
+  if ([DataModel sharedInstance].isGstIncluded)
+    finalPrice *= 1.07;
+  if ([DataModel sharedInstance].isServiceTaxIncluded)
+    finalPrice *= 1.10;
   
+  numberFormatter = [DataModel sharedInstance].currencyFormatter;
+  self.item.finalPrice = [NSNumber numberWithFloat:finalPrice];
+  [self.item reduceContributions:oldFinalPrice];
+
+  if ([self.nameTextField isFirstResponder])
+    [self.nameTextField resignFirstResponder];
+  else
+    [self.basePriceTextField resignFirstResponder];
+
   [self.navigationController popViewControllerAnimated:YES];
 }
 

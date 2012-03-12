@@ -17,7 +17,7 @@
 @property (nonatomic, strong) UITableView *peopleTableView;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
-- (void)addPerson:(UIBarButtonItem *)barButton;
+- (void)addPerson;
 
 @end
 
@@ -61,7 +61,7 @@
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
   
-  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addPerson:)];
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addPerson)];
   self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
@@ -82,7 +82,7 @@
 
 #pragma mark - Action methods
 
-- (IBAction)addPerson:(UIBarButtonItem *)barButton
+- (IBAction)addPerson
 {
   NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects] inSection:0];
   NSArray *array = [NSArray arrayWithObject:indexPath];
@@ -96,7 +96,8 @@
   [self.peopleTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
   NSError *error;
   [self.fetchedResultsController performFetch:&error];  
-  [self.peopleTableView endUpdates];  
+  [self.peopleTableView endUpdates];
+  indexPath = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:0];
   [self.peopleTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
@@ -107,13 +108,28 @@
   static NSString* MyIdentifier = @"MyIdentifier";
   
   UITableViewCell *cell = [self.peopleTableView dequeueReusableCellWithIdentifier:MyIdentifier];
+
+  Person *person;
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
+    person = nil;
+  else
+    person = [self.fetchedResultsController.fetchedObjects objectAtIndex:indexPath.row];
+
   if (cell == nil)
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier];
-  
-  Person *person = [self.fetchedResultsController.fetchedObjects objectAtIndex:indexPath.row];
+
   cell.textLabel.text = person.name;
+  cell.textLabel.textAlignment = UITextAlignmentLeft;
+  if (cell.textLabel.text == nil)
+  {
+    cell.textLabel.text = @"Tap here to add a new person";
+    cell.textLabel.textAlignment = UITextAlignmentCenter;
+  }
+  
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:[person calculateContributions]]];
+  if ([person calculateContributions] == nil)
+    cell.detailTextLabel.text = nil;
   
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
   
@@ -123,16 +139,21 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
   
-  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
+  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects] + 1;
 }
 
 #pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  Person *person = [self.fetchedResultsController objectAtIndexPath:indexPath];
-  EditPersonViewController *editPersonViewController = [[EditPersonViewController alloc] initWithPerson:person];
-  [self.navigationController pushViewController:editPersonViewController animated:YES];
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
+    [self addPerson];
+  else
+  {
+    Person *person = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    EditPersonViewController *editPersonViewController = [[EditPersonViewController alloc] initWithPerson:person];
+    [self.navigationController pushViewController:editPersonViewController animated:YES];    
+  }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

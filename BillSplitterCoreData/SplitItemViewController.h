@@ -10,7 +10,7 @@
 #import "Item.h"
 #import "Person.h"
 
-@interface SplitItemViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+@interface SplitItemViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
 
 - (id)initWithItem:(Item *)theItem andPeople:(NSArray *)people;
 
