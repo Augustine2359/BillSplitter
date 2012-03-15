@@ -24,10 +24,13 @@
 @property (nonatomic, strong) NSMutableArray *cellIsExpandedArray;
 @property (nonatomic, strong) NSMutableArray *headerViewsArray;
 
+@property (nonatomic, strong) SplitItemTableViewCell *activeCell;
+
 - (void)calculateTotalAmountContributed;
 - (void)splitEvenly;
 - (void)toggleExpanded:(id)sender;
 - (void)save;
+- (void)increaseInContribution:(Contribution *)contribution newValue:(CGFloat)newContributionAmount;
 
 @end
 
@@ -43,12 +46,14 @@
 @synthesize cellIsExpandedArray;
 @synthesize contributionsArray;
 @synthesize headerViewsArray;
+@synthesize activeCell;
 
 - (id)initWithItem:(Item *)theItem andPeople:(NSArray *)people
 {
   self = [super init];
   if (self)
   {
+    self.activeCell = nil;
     self.item = theItem;
     self.title = self.item.name;
     self.peopleArray = people;
@@ -176,58 +181,63 @@
 
 - (void)sliderValueChanged:(UISlider *)slider
 {
-  Contribution *contribution = [self.contributionsArray objectAtIndex:slider.tag];
-  CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
-  CGFloat oldContributionAmount = [contribution.amount floatValue];
-  CGFloat newContributionAmount = slider.value * [self.item.finalPrice floatValue] / 100;
+  self.activeCell = (SplitItemTableViewCell *)slider.superview.superview;
 
-  [self.contributionsTableView beginUpdates];
-  contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
-  for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
-    [cell updateContributions];
+  Contribution *contribution = self.activeCell.contribution;
+  CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
+  CGFloat newContributionAmount = slider.value * [self.item.finalPrice floatValue] / 100;
 
   //it's a reduction in contribution
   if (slider.value < ratio * 100)
   {
-    for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
-      if (cell.percentageSlider.tag == slider.tag)
-        [cell updateContributions];
+    [self.contributionsTableView beginUpdates];
+    contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
+    [self.activeCell updateContributions];
+    [self.contributionsTableView endUpdates];
   }
+
   //it's an increase in contribution
   else
   {
-    NSNumber *unpaidPortion = [self.item unpaidPortion];
-    CGFloat changeInAmount = newContributionAmount - oldContributionAmount;
-    if (changeInAmount > [unpaidPortion floatValue]) //if there's no spare amount that hasn't been paid for
-    {
-      NSUInteger numberOfZeroContributions = 0;
-      for (Contribution *otherContribution in self.contributionsArray)
-        if ((![otherContribution isEqual:contribution])&&([otherContribution.amount floatValue] == 0))
-          numberOfZeroContributions++;
-      
-      changeInAmount /= [self.contributionsArray count] - 1 - numberOfZeroContributions; //the eaten part is split evenly
-
-      for (Contribution *otherContribution in self.contributionsArray)
-      {
-        if ([otherContribution isEqual:contribution])
-          continue;
-        CGFloat amount = [otherContribution.amount floatValue]; //their current amount
-        if (amount > changeInAmount)
-          otherContribution.amount = [NSNumber numberWithFloat:amount - changeInAmount]; //reduce by however much
-        else
-          otherContribution.amount = [NSNumber numberWithFloat:0];
-      }
-      for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
-        [cell updateContributions];
-    }
-    for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
-      if (cell.percentageSlider.tag == slider.tag)
-        [cell updateContributions];
+    [self increaseInContribution:contribution newValue:newContributionAmount];
   }
   
-  [self.contributionsTableView endUpdates];
-  
   [self calculateTotalAmountContributed];
+  
+  self.activeCell = nil;
+}
+
+- (void)increaseInContribution:(Contribution *)contribution newValue:(CGFloat)newContributionAmount
+{
+  [self.contributionsTableView beginUpdates];
+  NSNumber *unpaidPortion = [self.item unpaidPortion];
+  CGFloat oldContributionAmount = [contribution.amount floatValue];
+  contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
+  CGFloat changeInAmount = newContributionAmount - oldContributionAmount;
+  if (changeInAmount > [unpaidPortion floatValue]) //if there's no spare amount that hasn't been paid for
+  {
+    NSUInteger numberOfZeroContributions = 0;
+    for (Contribution *otherContribution in self.contributionsArray)
+      if ((![otherContribution isEqual:contribution])&&([otherContribution.amount floatValue] == 0))
+        numberOfZeroContributions++;
+    
+    changeInAmount /= [self.contributionsArray count] - 1 - numberOfZeroContributions; //the eaten part is split evenly
+    
+    for (Contribution *otherContribution in self.contributionsArray)
+    {
+      if ([otherContribution isEqual:contribution])
+        continue;
+      CGFloat amount = [otherContribution.amount floatValue]; //their current amount
+      if (amount > changeInAmount)
+        otherContribution.amount = [NSNumber numberWithFloat:amount - changeInAmount]; //reduce by however much
+      else
+        otherContribution.amount = [NSNumber numberWithFloat:0];
+    }
+    for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
+      [cell updateContributions];
+  }
+  [self.activeCell updateContributions];
+  [self.contributionsTableView endUpdates];
 }
 
 #pragma mark - UITableView DataSource
@@ -291,45 +301,98 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
+  UIView *subview = textField;
+  while (![subview isKindOfClass:[SplitItemTableViewCell class]])
+    subview = subview.superview;
+  self.activeCell = (SplitItemTableViewCell *)subview;
   [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save)] animated:NO];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
+  Contribution *contribution = self.activeCell.contribution;
+  NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+  CGFloat newContributionAmount;
   
+  if ([textField isEqual:self.activeCell.contributionTextField])
+  {
+    newContributionAmount = [[numberFormatter numberFromString:[textField.text substringFromIndex:1]] floatValue];
+    
+    //it's a reduction in contribution
+    if (newContributionAmount < [contribution.amount floatValue])
+    {
+      [self.contributionsTableView beginUpdates];
+      contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
+      [self.activeCell updateContributions];
+      [self.contributionsTableView endUpdates];
+    }
+    //it's an increase in contribution
+    else
+      [self increaseInContribution:contribution newValue:newContributionAmount];
+  }
+  else
+    if ([textField isEqual:self.activeCell.percentageTextField])
+    {
+      CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
+      newContributionAmount = [[numberFormatter numberFromString:[textField.text substringToIndex:[textField.text length] - 1]] floatValue] * [self.item.finalPrice floatValue] / 100;
+
+      //it's a reduction in contribution
+      if (newContributionAmount < ratio * 100)
+      {
+        [self.contributionsTableView beginUpdates];
+        contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
+        [self.activeCell updateContributions];
+        [self.contributionsTableView endUpdates];
+      }
+      
+      //it's an increase in contribution
+      else
+      {
+        [self increaseInContribution:contribution newValue:newContributionAmount];
+      }
+    }
+  
+  [self calculateTotalAmountContributed];
+  self.activeCell = nil;
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
+{
+  return YES;
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
   BOOL shouldChange = YES;
   
-  NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-  [numberFormatter numberFromString:string];
+  if ([textField isEqual:self.activeCell.contributionTextField])
+  {
+    if (range.location == 0) //trying to delete dollar sign
+      shouldChange = NO;
+    if (string.length > 1) //trying to paste text
+      shouldChange = NO;
+    
+    NSCharacterSet *notAllowed = [[NSCharacterSet characterSetWithCharactersInString:@"1234567890."] invertedSet];
+    if ((string.length > 0) && ([notAllowed characterIsMember:[string characterAtIndex:0]])) //trying to insert invalid character
+      shouldChange = NO;
+    
+    NSMutableString *replacementString = [textField.text mutableCopy];
+    [replacementString replaceCharactersInRange:range withString:string];
+    NSArray *chunks = [replacementString componentsSeparatedByString:@"."];
+    if ([chunks count] > 2) //trying to place more than 1 .
+      shouldChange = NO;
+    
+    if ([chunks count] == 2)
+    {
+      NSString *cents = [chunks objectAtIndex:1]; //trying to have more than 2 decimals
+      if (cents.length > 2)
+        shouldChange = NO;
+    }
+  }
+  else
+    if ([textField isEqual:self.activeCell.percentageTextField])
+      NSLog(@"percentage");
   
-//  if ([textField isEqual:self.basePriceTextField])
-//  {
-//    if (range.location == 0) //trying to delete dollar sign
-//      shouldChange = NO;
-//    if (string.length > 1) //trying to paste text
-//      shouldChange = NO;
-//    
-//    NSCharacterSet *notAllowed = [[NSCharacterSet characterSetWithCharactersInString:@"1234567890."] invertedSet];
-//    if ((string.length > 0) && ([notAllowed characterIsMember:[string characterAtIndex:0]])) //trying to insert invalid character
-//      shouldChange = NO;
-//    
-//    NSMutableString *replacementString = [self.basePriceTextField.text mutableCopy];
-//    [replacementString replaceCharactersInRange:range withString:string];
-//    NSArray *chunks = [replacementString componentsSeparatedByString:@"."];
-//    if ([chunks count] > 2) //trying to place more than 1 .
-//      shouldChange = NO;
-//    
-//    if ([chunks count] == 2)
-//    {
-//      NSString *cents = [chunks objectAtIndex:1]; //trying to have more than 2 decimals
-//      if (cents.length > 2)
-//        shouldChange = NO;
-//    }
-//  }
   return shouldChange;
 }
 
