@@ -176,7 +176,11 @@
 
 - (void)save
 {
-  
+  [self.activeCell endEditing:YES];
+  self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Split evenly" 
+                                                                            style:UIBarButtonItemStylePlain 
+                                                                           target:self
+                                                                           action:@selector(splitEvenly)];
 }
 
 - (void)sliderValueChanged:(UISlider *)slider
@@ -210,32 +214,70 @@
 - (void)increaseInContribution:(Contribution *)contribution newValue:(CGFloat)newContributionAmount
 {
   [self.contributionsTableView beginUpdates];
+  
   NSNumber *unpaidPortion = [self.item unpaidPortion];
   CGFloat oldContributionAmount = [contribution.amount floatValue];
   contribution.amount = [NSNumber numberWithFloat:newContributionAmount];
   CGFloat changeInAmount = newContributionAmount - oldContributionAmount;
+
+  NSMutableArray *nonZeroContributionArray = [NSMutableArray array];
+  
   if (changeInAmount > [unpaidPortion floatValue]) //if there's no spare amount that hasn't been paid for
   {
-    NSUInteger numberOfZeroContributions = 0;
+    changeInAmount -= [unpaidPortion floatValue];
+    CGFloat spareAmountToReduce = 0;
+
     for (Contribution *otherContribution in self.contributionsArray)
-      if ((![otherContribution isEqual:contribution])&&([otherContribution.amount floatValue] == 0))
-        numberOfZeroContributions++;
+      if ((![otherContribution isEqual:contribution])&&([otherContribution.amount floatValue] != 0))
+        [nonZeroContributionArray addObject:otherContribution];
     
-    changeInAmount /= [self.contributionsArray count] - 1 - numberOfZeroContributions; //the eaten part is split evenly
+    changeInAmount /= [nonZeroContributionArray count]; //the eaten part is split evenly
+    NSLog(@"%@ %f", nonZeroContributionArray, changeInAmount);
     
-    for (Contribution *otherContribution in self.contributionsArray)
+    for (Contribution *otherContribution in nonZeroContributionArray)
     {
-      if ([otherContribution isEqual:contribution])
-        continue;
       CGFloat amount = [otherContribution.amount floatValue]; //their current amount
-      if (amount > changeInAmount)
+      if (amount >= changeInAmount)
         otherContribution.amount = [NSNumber numberWithFloat:amount - changeInAmount]; //reduce by however much
       else
+      {
+        spareAmountToReduce += changeInAmount - amount;
+        NSLog(@"%f", changeInAmount - amount);
         otherContribution.amount = [NSNumber numberWithFloat:0];
+      }
     }
+    
+    while (spareAmountToReduce != 0)
+    {
+      changeInAmount = spareAmountToReduce;
+      NSLog(@"%f", spareAmountToReduce);
+      spareAmountToReduce = 0;
+      nonZeroContributionArray = [NSMutableArray array];
+      for (Contribution *otherContribution in self.contributionsArray)
+        if ((![otherContribution isEqual:contribution])&&([otherContribution.amount floatValue] != 0))
+          [nonZeroContributionArray addObject:otherContribution];
+      
+      changeInAmount /= [nonZeroContributionArray count]; //the eaten part is split evenly
+
+      NSLog(@"%@ %f", nonZeroContributionArray, changeInAmount);
+
+      for (Contribution *otherContribution in nonZeroContributionArray)
+      {
+        CGFloat amount = [otherContribution.amount floatValue]; //their current amount
+        if (amount > changeInAmount)
+          otherContribution.amount = [NSNumber numberWithFloat:amount - changeInAmount]; //reduce by however much
+        else
+        {
+          spareAmountToReduce += amount - changeInAmount;
+          otherContribution.amount = [NSNumber numberWithFloat:0];
+        }
+      }
+    }
+    
     for (SplitItemTableViewCell *cell in self.contributionsTableView.visibleCells)
       [cell updateContributions];
   }
+  
   [self.activeCell updateContributions];
   [self.contributionsTableView endUpdates];
 }
@@ -305,6 +347,8 @@
   while (![subview isKindOfClass:[SplitItemTableViewCell class]])
     subview = subview.superview;
   self.activeCell = (SplitItemTableViewCell *)subview;
+  if ([textField isEqual:self.activeCell.percentageTextField])
+    textField.text = [textField.text substringToIndex:[textField.text length] - 1];
   [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save)] animated:NO];
 }
 
@@ -334,7 +378,8 @@
     if ([textField isEqual:self.activeCell.percentageTextField])
     {
       CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
-      newContributionAmount = [[numberFormatter numberFromString:[textField.text substringToIndex:[textField.text length] - 1]] floatValue] * [self.item.finalPrice floatValue] / 100;
+      newContributionAmount = [[numberFormatter numberFromString:textField.text] floatValue] * [self.item.finalPrice floatValue] / 100;
+      textField.text = [NSString stringWithFormat:@"%@%", textField.text];
 
       //it's a reduction in contribution
       if (newContributionAmount < ratio * 100)
@@ -356,42 +401,36 @@
   self.activeCell = nil;
 }
 
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
-{
-  return YES;
-}
-
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
   BOOL shouldChange = YES;
   
-  if ([textField isEqual:self.activeCell.contributionTextField])
+  if (([textField isEqual:self.activeCell.contributionTextField]) && (range.location == 0)) //trying to delete dollar sign
+    shouldChange = NO;
+  if (string.length > 1) //trying to paste text
+    shouldChange = NO;
+    
+  NSCharacterSet *notAllowed = [[NSCharacterSet characterSetWithCharactersInString:@"1234567890."] invertedSet];
+  if ((string.length > 0) && ([notAllowed characterIsMember:[string characterAtIndex:0]])) //trying to insert invalid character
+    shouldChange = NO;
+    
+  NSMutableString *replacementString = [textField.text mutableCopy];
+  [replacementString replaceCharactersInRange:range withString:string];
+  NSArray *chunks = [replacementString componentsSeparatedByString:@"."];
+  if ([chunks count] > 2) //trying to place more than 1 .
+    shouldChange = NO;
+    
+  if ([chunks count] == 2)
   {
-    if (range.location == 0) //trying to delete dollar sign
+    NSUInteger numberOfDecimalPlaces;
+    if ([textField isEqual:self.activeCell.contributionTextField])
+      numberOfDecimalPlaces = 2;
+    else
+      numberOfDecimalPlaces = 1;
+
+    if ([[chunks objectAtIndex:1] length] > numberOfDecimalPlaces) //trying to have too many decimal places
       shouldChange = NO;
-    if (string.length > 1) //trying to paste text
-      shouldChange = NO;
-    
-    NSCharacterSet *notAllowed = [[NSCharacterSet characterSetWithCharactersInString:@"1234567890."] invertedSet];
-    if ((string.length > 0) && ([notAllowed characterIsMember:[string characterAtIndex:0]])) //trying to insert invalid character
-      shouldChange = NO;
-    
-    NSMutableString *replacementString = [textField.text mutableCopy];
-    [replacementString replaceCharactersInRange:range withString:string];
-    NSArray *chunks = [replacementString componentsSeparatedByString:@"."];
-    if ([chunks count] > 2) //trying to place more than 1 .
-      shouldChange = NO;
-    
-    if ([chunks count] == 2)
-    {
-      NSString *cents = [chunks objectAtIndex:1]; //trying to have more than 2 decimals
-      if (cents.length > 2)
-        shouldChange = NO;
-    }
   }
-  else
-    if ([textField isEqual:self.activeCell.percentageTextField])
-      NSLog(@"percentage");
   
   return shouldChange;
 }

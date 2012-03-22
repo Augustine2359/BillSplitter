@@ -9,6 +9,7 @@
 #import "SplitTableViewController.h"
 #import "SplitItemViewController.h"
 #import "Item.h"
+#import "Contribution.h"
 #import "Person.h"
 #import "DataModel.h"
 #import "ItemTableViewCell.h"
@@ -20,11 +21,11 @@
 @property (nonatomic, strong) NSFetchedResultsController *fetchedPersonResultsController;
 @property (nonatomic, strong) UITableView *itemsTableView;
 @property (nonatomic, strong) UITableView *peopleTableView;
-@property (nonatomic, strong) UITableViewCell *currentlySelectedTableViewCell;
 @property (nonatomic, strong) UIBarButtonItem *rightBarButtonItem;
-@property (nonatomic, strong) NSMutableArray *currentlySelectedPeople;
 
-- (void)split:(UIBarButtonItem *)barButton;
+- (void)assign:(UIBarButtonItem *)barButton;
+- (void)deselectContributorsToItem:(NSIndexPath *)indexPath;
+- (void)selectContributorsToItem:(NSIndexPath *)indexPath;
 
 @end
 
@@ -48,9 +49,9 @@
 @synthesize fetchedPersonResultsController;
 @synthesize itemsTableView;
 @synthesize peopleTableView;
-@synthesize currentlySelectedTableViewCell;
+//@synthesize currentlySelectedTableViewCell;
 @synthesize rightBarButtonItem;
-@synthesize currentlySelectedPeople;
+//@synthesize currentlySelectedPeople;
 
 - (id)init
 {
@@ -58,7 +59,7 @@
   if (self)
   {
     self.title = @"Split";
-    self.currentlySelectedPeople = [NSMutableArray array];
+//    self.currentlySelectedPeople = [NSMutableArray array];
     
     self.context = [DataModel sharedInstance].context;
     NSFetchRequest *fetchItemsRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
@@ -100,32 +101,26 @@
   
   self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2 + 1, 0, self.view.bounds.size.width/2 - 1, self.view.bounds.size.height) style:UITableViewStylePlain];
   self.peopleTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+  self.peopleTableView.allowsMultipleSelection = YES;
   self.peopleTableView.dataSource = self;
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
   
-  self.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Split" style:UIBarButtonItemStyleBordered target:self action:@selector(split:)];
-  self.rightBarButtonItem.enabled = NO;
+  self.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Assign" style:UIBarButtonItemStyleBordered target:self action:@selector(assign:)];
+  self.rightBarButtonItem.enabled = YES;
   self.navigationItem.rightBarButtonItem = self.rightBarButtonItem;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
-  
+
   NSError *error;
   [self.fetchedItemResultsController performFetch:&error];
   [self.fetchedPersonResultsController performFetch:&error];
   
   [self.itemsTableView reloadData];
   [self.peopleTableView reloadData];
-  
-  //boat
-  if (self.currentlySelectedTableViewCell != nil)
-  {
-    NSIndexPath *indexPath = [self.itemsTableView indexPathForCell:self.currentlySelectedTableViewCell];
-    [self.itemsTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-  }
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
@@ -135,14 +130,88 @@
 
 #pragma mark - Action methods
 
-- (void)split:(UIBarButtonItem *)barButton
+- (void)assign:(UIBarButtonItem *)barButton
 {
-  NSIndexPath *indexPath = [self.itemsTableView indexPathForCell:self.currentlySelectedTableViewCell];
+  NSIndexPath *indexPath = [self.itemsTableView indexPathForSelectedRow];
   Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
 
-  SplitItemViewController *splitItemViewController = [[SplitItemViewController alloc] initWithItem:item andPeople:self.currentlySelectedPeople];
+  NSMutableArray *currentlySelectedPeople = [NSMutableArray array];
+  for (NSIndexPath *indexPath in [self.peopleTableView indexPathsForSelectedRows])
+    [currentlySelectedPeople addObject:[self.fetchedPersonResultsController objectAtIndexPath:indexPath]];
+  
+  SplitItemViewController *splitItemViewController = [[SplitItemViewController alloc] initWithItem:item andPeople:currentlySelectedPeople];
   
   [self.navigationController pushViewController:splitItemViewController animated:YES];
+}
+
+#pragma mark - Utility methods
+
+- (void)selectContributorsToItem:(NSIndexPath *)indexPath
+{
+  Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
+  NSMutableArray *visibleCells = [self.peopleTableView.visibleCells mutableCopy];
+  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
+  NSMutableArray *contributions = [item.contributions mutableCopy];
+  NSMutableArray *people = [self.fetchedPersonResultsController.fetchedObjects mutableCopy];
+  BOOL personWasContributor;
+  BOOL cellAtIndexPathWasVisible;
+  
+  for (Contribution *contribution in contributions)
+  {
+    personWasContributor = NO;
+
+    for (Person *person in people)
+      if ([contribution.person isEqual:person])
+      {
+        personWasContributor = YES;
+        NSUInteger index = [people indexOfObject:person];
+        NSIndexPath *aIndexPath = [NSIndexPath indexPathForRow:index inSection:0];
+        NSIndexPath *bIndexPath;
+        cellAtIndexPathWasVisible = NO;
+        for (UITableViewCell *cell in visibleCells)
+        {
+          bIndexPath = [self.peopleTableView indexPathForCell:cell];
+          if ([bIndexPath isEqual:aIndexPath])
+          {
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:contribution.amount]];
+            cellAtIndexPathWasVisible = YES;
+            break;
+          }
+        }
+        if (cellAtIndexPathWasVisible)
+          [visibleCells removeObject:bIndexPath];
+        [self.peopleTableView selectRowAtIndexPath:aIndexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+        break;
+      }
+  }
+}
+
+- (void)deselectContributorsToItem:(NSIndexPath *)indexPath
+{
+  NSMutableArray *visibleCells = [self.peopleTableView.visibleCells mutableCopy];
+  NSIndexPath *bIndexPath;
+  BOOL cellAtIndexPathWasVisible;
+  
+  for (NSIndexPath *aIndexPath in [self.peopleTableView indexPathsForSelectedRows])
+  {
+    [self.peopleTableView deselectRowAtIndexPath:aIndexPath animated:NO];
+    cellAtIndexPathWasVisible = NO;
+
+    for (UITableViewCell *cell in visibleCells)
+    {
+      bIndexPath = [self.peopleTableView indexPathForCell:cell];
+      if ([bIndexPath isEqual:aIndexPath])
+      {
+        cell.detailTextLabel.text = nil;
+        cellAtIndexPathWasVisible = YES;
+        break;
+      }
+    }
+
+    if (cellAtIndexPathWasVisible)
+      [visibleCells removeObject:bIndexPath];
+  }
+
 }
 
 #pragma mark - UITableView DataSource
@@ -151,6 +220,8 @@
 {
   static NSString *ItemIdentifier = @"ItemIdentifier";
   static NSString *PersonIdentifier = @"PersonIdentifier";
+
+  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   
   if ([tableView isEqual:self.itemsTableView])
   {
@@ -159,9 +230,7 @@
     if (cell == nil)
       cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:ItemIdentifier item:item];
     cell.textLabel.text = item.name;
-    cell.selectionStyle=UITableViewCellSelectionStyleBlue;
 
-    NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
     NSNumber *totalContributions = [item calculateContributions];
     if ([totalContributions floatValue] < [item.finalPrice floatValue])
@@ -186,7 +255,22 @@
     
     Person *person = [self.fetchedPersonResultsController objectAtIndexPath:indexPath];
     cell.textLabel.text = person.name;
-    cell.selectionStyle=UITableViewCellSelectionStyleNone;    
+    cell.detailTextLabel.text = nil;
+
+    NSIndexPath *selectedItemIndexPath = [self.itemsTableView indexPathForSelectedRow];
+    Item *item = [self.fetchedItemResultsController objectAtIndexPath:selectedItemIndexPath];
+    Contribution *contribution;
+    if (item != nil)
+    {
+      for (Contribution *aContribution in item.contributions)
+        if ([aContribution.person isEqual:person])
+        {
+          contribution = aContribution;
+          break;
+        }
+      if (contribution != nil)
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:contribution.amount]];
+    }
     
     return cell;
   }
@@ -205,67 +289,42 @@
   return i;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+  //item is already selected, deselect it
+  if (([tableView isEqual:self.itemsTableView]) && ([[tableView indexPathForSelectedRow] isEqual:indexPath]))
+  {
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    [self deselectContributorsToItem:indexPath];
+    indexPath = nil;
+  }
   
-  if ([tableView isEqual:self.itemsTableView])
-    if ([cell isEqual:self.currentlySelectedTableViewCell])
-    {
-      [tableView deselectRowAtIndexPath:indexPath animated:NO];
-      self.currentlySelectedTableViewCell = nil;
-    }
-    else
-      self.currentlySelectedTableViewCell = cell;
-  
+  //item not yet selected, select it and its contributors
   else
-    if ([tableView isEqual:self.peopleTableView])
+    if ([tableView isEqual:self.itemsTableView])
     {
-      [self.peopleTableView beginUpdates];
-      Person *person = [self.fetchedPersonResultsController.fetchedObjects objectAtIndex:indexPath.row];
-      if (cell.tag == ContributorTag)
-      {
-        cell.backgroundColor = NonContributorBackgroundColor;
-        cell.textLabel.backgroundColor = NonContributorBackgroundColor;
-        cell.tag = NonContributorTag;
-        [self.currentlySelectedPeople removeObject:person];
-      }
-      else
-      {
-        cell.tag = ContributorTag;
-        cell.backgroundColor = ContributorBackgroundColor;
-        cell.textLabel.backgroundColor = ContributorBackgroundColor;
-        [self.currentlySelectedPeople addObject:person];
-      }
-        
-      [self.peopleTableView endUpdates];
+      [self deselectContributorsToItem:[self.itemsTableView indexPathForSelectedRow]];
+      [UIView animateWithDuration:0 animations:^{} completion:^(BOOL finished) {[self selectContributorsToItem:indexPath];}];
     }
-  
-  if (([self.currentlySelectedPeople count] > 0) && (self.currentlySelectedTableViewCell != nil))
-    self.rightBarButtonItem.enabled = YES;
-  else
-    self.rightBarButtonItem.enabled = NO;
+
+  return indexPath;
+}
+
+- (NSIndexPath *)tableView:(UITableView *)tableView willDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  if (([tableView isEqual:self.itemsTableView]) && ([[tableView indexPathForSelectedRow] isEqual:indexPath]))
+  {
+    for (NSIndexPath *aIndexPath in [self.peopleTableView indexPathsForSelectedRows])
+    {
+      [self.peopleTableView deselectRowAtIndexPath:aIndexPath animated:NO];
+
+    }
+  }
+
+  return indexPath;
 }
 
 #pragma mark - UITableView Delegate
-
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-  if ([tableView isEqual:self.peopleTableView])
-  {
-    if (cell.tag == NonContributorTag)
-    {
-      cell.backgroundColor = NonContributorBackgroundColor;
-      cell.textLabel.backgroundColor = NonContributorBackgroundColor;
-    }
-    if (cell.tag == ContributorTag)
-    {
-      cell.backgroundColor = ContributorBackgroundColor;
-      cell.textLabel.backgroundColor = ContributorBackgroundColor;
-    }
-    cell.textLabel.textColor = [UIColor blackColor];
-  }
-}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
