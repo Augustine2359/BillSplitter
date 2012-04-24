@@ -218,7 +218,7 @@
 		F918FB1214DCFAEE004E9262 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = F918FB1514DCFAEE004E9262 /* Build configuration list for PBXProject "BillSplitterCoreData" */;
 			compatibilityVersion = "Xcode 3.2";

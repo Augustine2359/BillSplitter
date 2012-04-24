@@ -70,8 +70,8 @@
       finalPrice *= 1.10;
     item.finalPrice = [NSNumber numberWithFloat:finalPrice];
   }
-  
-  [self updateContributionsForTax:finalPrice/oldFinalPrice];
+  if (finalPrice != oldFinalPrice)
+    [self updateContributionsForTax:finalPrice/oldFinalPrice];
 }
 
 - (void)updateContributionsForTax:(CGFloat)ratio
@@ -86,7 +86,7 @@
                                                                                                         cacheName:nil];
   NSError *error;
   [fetchedResultsController performFetch:&error];
-  
+
   for (Contribution *contribution in fetchedResultsController.fetchedObjects)
   {
     CGFloat amount = [contribution.amount floatValue];

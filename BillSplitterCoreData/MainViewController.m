@@ -24,7 +24,7 @@
 @property (nonatomic, strong) UISwitch *serviceTaxSwitch;
 
 - (IBAction)itemsButtonPressed:(UIButton *)button;
-- (IBAction)peoleButtonPressed:(UIButton *)button;
+- (IBAction)peopleButtonPressed:(UIButton *)button;
 - (IBAction)splitButtonPressed:(UIButton *)button;
 - (IBAction)gstToggle:(UISwitch *)theSwitch;
 - (IBAction)serviceTaxToggle:(UISwitch *)theSwitch;

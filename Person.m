@@ -11,6 +11,7 @@
 
 @implementation Person
 
+@dynamic tag;
 @dynamic name;
 @dynamic contributions;
 

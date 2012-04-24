@@ -42,7 +42,7 @@
     self.context = [DataModel sharedInstance].context;
 
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"tag" ascending:YES selector:nil];
     NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
     fetchRequest.sortDescriptors = sortDescriptors;
     self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
@@ -88,7 +88,7 @@
 
 #pragma mark - Action methods
 
-- (IBAction)addItem
+- (void)addItem
 {
   NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects] inSection:0];
   NSArray *array = [NSArray arrayWithObject:indexPath];
@@ -98,13 +98,15 @@
                + 65];
   item.basePrice = [NSNumber numberWithFloat:100];
   item.finalPrice = [NSNumber numberWithFloat:100];
+  item.tag = [NSNumber numberWithInt:[self.fetchedResultsController.fetchedObjects count]];
   [item setContributions:[NSSet set]];
-  
+
   [self.itemsTableView beginUpdates];
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
   NSError *error;
   [self.fetchedResultsController performFetch:&error];
   [self.itemsTableView endUpdates];
+
   indexPath = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:0];
   [self.itemsTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
@@ -118,6 +120,7 @@
   ItemTableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
   Item *item;
   
+  NSLog(@"%@", self.fetchedResultsController.fetchedObjects);
   if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
     item = nil;
   else
@@ -147,6 +150,8 @@
   else
     cell.detailTextLabel.textColor = SETTLED_ITEM_TEXT_COLOR;
 
+  NSLog(@"%@", item.name);
+  
   return cell;
 }
 

@@ -16,6 +16,7 @@
   NSSet *contributions;
 }
 
+@property (nonatomic, retain) NSNumber * tag;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSSet *contributions;
 

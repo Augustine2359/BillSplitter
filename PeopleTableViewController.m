@@ -36,7 +36,7 @@
     self.context = [DataModel sharedInstance].context;
 
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"tag" ascending:YES selector:nil];
     NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
     fetchRequest.sortDescriptors = sortDescriptors;
     self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
@@ -82,7 +82,7 @@
 
 #pragma mark - Action methods
 
-- (IBAction)addPerson
+- (void)addPerson
 {
   NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects] inSection:0];
   NSArray *array = [NSArray arrayWithObject:indexPath];
@@ -90,6 +90,7 @@
   Person *person = (Person *)[NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:self.context];
   person.name = [NSString stringWithFormat:@"Person %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
                  + 65]; //use ASCII
+  person.tag = [NSNumber numberWithInt:[self.fetchedResultsController.fetchedObjects count]];
   person.contributions = [NSSet set];
   
   [self.peopleTableView beginUpdates];

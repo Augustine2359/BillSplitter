@@ -18,6 +18,7 @@
 
 @property (nonatomic, retain) NSNumber * basePrice;
 @property (nonatomic, retain) NSNumber * finalPrice;
+@property (nonatomic, retain) NSNumber * tag;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSSet *contributions;
 

@@ -13,6 +13,7 @@
 
 @dynamic basePrice;
 @dynamic finalPrice;
+@dynamic tag;
 @dynamic name;
 @dynamic contributions;
 
