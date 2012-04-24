@@ -62,10 +62,12 @@
     self.itemQuantityLabel.hidden = YES;
     self.itemPriceLabel.hidden = YES;
     self.itemNameLabel.hidden = YES;
+    self.textLabel.hidden = NO;
     self.textLabel.text = @"Tap here to add a new item";
   }
   else 
   {
+    self.textLabel.hidden = YES;
     self.itemQuantityLabel.hidden = NO;
     self.itemPriceLabel.hidden = NO;
     self.itemNameLabel.hidden = NO;

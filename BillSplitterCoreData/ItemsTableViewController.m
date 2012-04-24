@@ -9,6 +9,7 @@
 #import "ItemsTableViewController.h"
 #import "EditItemViewController.h"
 #import "Item.h"
+#import "Contribution.h"
 #import "DataModel.h"
 #import "ItemTableViewCell.h"
 
@@ -17,8 +18,13 @@
 @property (nonatomic, strong) UITableView *itemsTableView;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
+@property (nonatomic) BOOL isDeleting;
 
+- (void)callActionSheet;
 - (void)addItem;
+- (void)toggleDeletingMode;
+- (void)arrangeAlphabetically;
+- (void)fetchByTag;
 
 @end
 
@@ -27,24 +33,16 @@
 @synthesize itemsTableView;
 @synthesize context;
 @synthesize fetchedResultsController;
+@synthesize isDeleting;
 
 - (id)init
 {
   self = [super init];
   if (self)
   {
+    self.isDeleting = NO;
     self.title = @"Items";
     self.context = [DataModel sharedInstance].context;
-
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"tag" ascending:YES selector:nil];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    fetchRequest.sortDescriptors = sortDescriptors;
-    self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                        managedObjectContext:self.context
-                                                                          sectionNameKeyPath:nil
-                                                                                   cacheName:nil];
-    self.fetchedResultsController.delegate = self;
   }
   return self;
 }
@@ -62,17 +60,14 @@
   self.itemsTableView.delegate = self;
   [self.view addSubview:self.itemsTableView];
   
-  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addItem)];
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
   self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
-
-  NSError *error;
-  [self.fetchedResultsController performFetch:&error];
-  
+  [self fetchByTag];
   [self.itemsTableView reloadData];
 }
 
@@ -82,6 +77,12 @@
 }
 
 #pragma mark - Action methods
+
+- (void)callActionSheet
+{
+  UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Add", @"Delete", @"Arrange Alphabetically", nil];
+  [actionSheet showInView:self.view];
+}
 
 - (void)addItem
 {
@@ -99,12 +100,92 @@
 
   [self.itemsTableView beginUpdates];
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
-  NSError *error;
-  [self.fetchedResultsController performFetch:&error];
+  [self fetchByTag];
   [self.itemsTableView endUpdates];
 
   indexPath = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:0];
   [self.itemsTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+}
+
+- (void)toggleDeletingMode
+{
+  self.isDeleting = !self.isDeleting;
+  if (self.isDeleting)
+  {
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(toggleDeletingMode)];
+    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+  }
+  else
+  {
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
+    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+  }
+}
+
+- (void)arrangeAlphabetically
+{
+  NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
+  NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+  NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+  fetchRequest.sortDescriptors = sortDescriptors;
+  self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                      managedObjectContext:self.context
+                                                                        sectionNameKeyPath:nil
+                                                                                 cacheName:nil];
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];
+  int index = 0;
+  for (Item *item in [self.fetchedResultsController fetchedObjects])
+  {
+    item.tag = [NSNumber numberWithInt:index];
+    index++;
+  }
+
+  [self.itemsTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void)deletingDone
+{
+  self.isDeleting = NO;
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
+  self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+}
+
+#pragma mark - Utility methods
+
+- (void)fetchByTag
+{
+  NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Item"];
+  NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"tag" ascending:YES selector:nil];
+  NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+  fetchRequest.sortDescriptors = sortDescriptors;
+  self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                      managedObjectContext:self.context
+                                                                        sectionNameKeyPath:nil
+                                                                                 cacheName:nil];
+  self.fetchedResultsController.delegate = self;
+  
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];
+}
+
+#pragma mark - ActionSheet delegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+  switch (buttonIndex) {
+    case 0:
+      [self addItem];
+      break;
+    case 1:
+      [self toggleDeletingMode];
+      break;
+    case 2:
+      [self arrangeAlphabetically];
+      break;
+    default:
+      break;
+  }
 }
 
 #pragma mark - UITableView DataSource
@@ -142,10 +223,24 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects])
-    [self addItem];
+    if (self.isDeleting)
+      NSLog(@"delete mode, cannot add");
+    else
+      [self addItem];
   else
   {
     Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
+
+    if (self.isDeleting)
+    {
+      for (Contribution *contribution in item.contributions)
+        [self.context deleteObject:contribution];
+
+      [self.context deleteObject:item];
+      [self fetchByTag];
+      [self.itemsTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+      return;
+    }
     EditItemViewController *editItemViewController = [[EditItemViewController alloc] initWithItem:item];
     [self.navigationController pushViewController:editItemViewController animated:YES];
   }

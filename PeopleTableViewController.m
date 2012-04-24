@@ -9,6 +9,7 @@
 #import "PeopleTableViewController.h"
 #import "EditPersonViewController.h"
 #import "Person.h"
+#import "Contribution.h"
 #import "DataModel.h"
 
 @interface PeopleTableViewController()
@@ -16,8 +17,13 @@
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) UITableView *peopleTableView;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
+@property (nonatomic) BOOL isDeleting;
 
+- (void)callActionSheet;
 - (void)addPerson;
+- (void)toggleDeletingMode;
+- (void)arrangeAlphabetically;
+- (void)fetchByTag;
 
 @end
 
@@ -26,6 +32,7 @@
 @synthesize context;
 @synthesize peopleTableView;
 @synthesize fetchedResultsController;
+@synthesize isDeleting;
 
 - (id)init
 {
@@ -34,16 +41,6 @@
   {
     self.title = @"People";
     self.context = [DataModel sharedInstance].context;
-
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"tag" ascending:YES selector:nil];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    fetchRequest.sortDescriptors = sortDescriptors;
-    self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                        managedObjectContext:self.context
-                                                                          sectionNameKeyPath:nil
-                                                                                   cacheName:nil];
-    self.fetchedResultsController.delegate = self;
   }
   return self;
 }
@@ -61,17 +58,14 @@
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
   
-  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addPerson)];
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
   self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
-  
-  NSError *error;
-  [self.fetchedResultsController performFetch:&error];  
-
+  [self fetchByTag];
   [self.peopleTableView reloadData];
 }
 
@@ -81,6 +75,12 @@
 }
 
 #pragma mark - Action methods
+
+- (void)callActionSheet
+{
+  UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Add", @"Delete", @"Arrange Alphabetically", nil];
+  [actionSheet showInView:self.view];
+}
 
 - (void)addPerson
 {
@@ -100,6 +100,80 @@
   [self.peopleTableView endUpdates];
   indexPath = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:0];
   [self.peopleTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+}
+
+- (void)toggleDeletingMode
+{
+  self.isDeleting = !self.isDeleting;
+  if (self.isDeleting)
+  {
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(toggleDeletingMode)];
+    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+  }
+  else
+  {
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
+    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+  }
+}
+
+- (void)arrangeAlphabetically
+{
+  NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+  NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+  NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+  fetchRequest.sortDescriptors = sortDescriptors;
+  self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                      managedObjectContext:self.context
+                                                                        sectionNameKeyPath:nil
+                                                                                 cacheName:nil];
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];
+  int index = 0;
+  for (Person *person in [self.fetchedResultsController fetchedObjects])
+  {
+    person.tag = [NSNumber numberWithInt:index];
+    index++;
+  }
+  
+  [self.peopleTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+#pragma mark - Utility methods
+
+- (void)fetchByTag
+{
+  NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+  NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"tag" ascending:YES selector:nil];
+  NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+  fetchRequest.sortDescriptors = sortDescriptors;
+  self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                      managedObjectContext:self.context
+                                                                        sectionNameKeyPath:nil
+                                                                                 cacheName:nil];
+  self.fetchedResultsController.delegate = self;
+  
+  NSError *error;
+  [self.fetchedResultsController performFetch:&error];
+}
+
+#pragma mark - ActionSheet delegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+  switch (buttonIndex) {
+    case 0:
+      [self addPerson];
+      break;
+    case 1:
+      [self toggleDeletingMode];
+      break;
+    case 2:
+      [self arrangeAlphabetically];
+      break;
+    default:
+      break;
+  }
 }
 
 #pragma mark - UITableView DataSource
@@ -148,10 +222,24 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
-    [self addPerson];
+    if (self.isDeleting)
+      NSLog(@"delete mode, cannot add");
+    else
+      [self addPerson];
   else
   {
     Person *person = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    
+    if (self.isDeleting)
+    {
+      for (Contribution *contribution in person.contributions)
+        [self.context deleteObject:contribution];
+      
+      [self.context deleteObject:person];
+      [self fetchByTag];
+      [self.peopleTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+      return;
+    }
     EditPersonViewController *editPersonViewController = [[EditPersonViewController alloc] initWithPerson:person];
     [self.navigationController pushViewController:editPersonViewController animated:YES];    
   }
