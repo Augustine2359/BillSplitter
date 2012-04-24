@@ -227,8 +227,10 @@
   {
     ItemTableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:ItemIdentifier];
     Item *item = [self.fetchedItemResultsController objectAtIndexPath:indexPath];
-    if (cell == nil)
-      cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:ItemIdentifier item:item];
+    if (cell == nil) {
+      cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:ItemIdentifier];
+      [cell updateWithItem:nil];
+    }
     cell.textLabel.text = item.name;
 
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];

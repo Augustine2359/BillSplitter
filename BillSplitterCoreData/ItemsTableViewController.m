@@ -12,11 +12,6 @@
 #import "DataModel.h"
 #import "ItemTableViewCell.h"
 
-#define UNSETTLED_ITEM_BACKGROUND_COLOR [UIColor redColor]
-#define UNSETTLED_ITEM_TEXT_COLOR [UIColor redColor]
-#define SETTLED_ITEM_BACKGROUND_COLOR [UIColor greenColor]
-#define SETTLED_ITEM_TEXT_COLOR [UIColor blackColor]
-
 @interface ItemsTableViewController()
 
 @property (nonatomic, strong) UITableView *itemsTableView;
@@ -94,6 +89,7 @@
   NSArray *array = [NSArray arrayWithObject:indexPath];
 
   Item *item = (Item *)[NSEntityDescription insertNewObjectForEntityForName:@"Item" inManagedObjectContext:self.context];
+  item.quantity = [NSNumber numberWithInt:1];
   item.name = [NSString stringWithFormat:@"Item %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
                + 65];
   item.basePrice = [NSNumber numberWithFloat:100];
@@ -120,38 +116,19 @@
   ItemTableViewCell *cell = [self.itemsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
   Item *item;
   
-  NSLog(@"%@", self.fetchedResultsController.fetchedObjects);
   if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
     item = nil;
   else
     item = [self.fetchedResultsController objectAtIndexPath:indexPath];
 
   if (cell == nil)
-    cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier item:item];
-
-  cell.item = item;
-
-  cell.textLabel.text = item.name;
-  cell.textLabel.textAlignment = UITextAlignmentLeft;
-  if (cell.textLabel.text == nil)
   {
-    cell.textLabel.text = @"Tap here to add a new item";
-    cell.textLabel.textAlignment = UITextAlignmentCenter;
+    cell = [[ItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier];
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
   }
-  cell.selectionStyle=UITableViewCellSelectionStyleNone;
-  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
-  cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [numberFormatter stringFromNumber:item.finalPrice]];
-  if (item.finalPrice == nil)
-    cell.detailTextLabel.text = nil;
-    
-  NSNumber *totalContributions = [item calculateContributions];
-  if ([totalContributions floatValue] < [item.finalPrice floatValue])
-    cell.detailTextLabel.textColor = UNSETTLED_ITEM_TEXT_COLOR;
-  else
-    cell.detailTextLabel.textColor = SETTLED_ITEM_TEXT_COLOR;
 
-  NSLog(@"%@", item.name);
-  
+  [cell updateWithItem:item];
+
   return cell;
 }
 

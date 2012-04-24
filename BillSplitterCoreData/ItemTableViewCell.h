@@ -13,6 +13,6 @@
 
 @property (nonatomic, strong) Item *item;
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier item:(Item *)theItem;
+- (void)updateWithItem:(Item *)item;
 
 @end

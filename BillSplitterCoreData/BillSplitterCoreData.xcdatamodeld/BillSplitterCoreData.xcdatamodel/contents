@@ -9,6 +9,7 @@
         <attribute name="basePrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="finalPrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="quantity" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="tag" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <relationship name="contribution" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Contribution" inverseName="item" inverseEntity="Contribution" syncable="YES"/>
     </entity>
@@ -19,7 +20,7 @@
     </entity>
     <elements>
         <element name="Contribution" positionX="160" positionY="192" width="128" height="90"/>
-        <element name="Item" positionX="160" positionY="180" width="128" height="90"/>
-        <element name="Person" positionX="-63" positionY="207" width="128" height="90"/>
+        <element name="Item" positionX="160" positionY="180" width="128" height="135"/>
+        <element name="Person" positionX="-63" positionY="207" width="128" height="60"/>
     </elements>
 </model>

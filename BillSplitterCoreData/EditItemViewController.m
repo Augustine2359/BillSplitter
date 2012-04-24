@@ -12,6 +12,7 @@
 
 @interface EditItemViewController()
 
+@property (nonatomic, strong) SplitterTextField *quantityTextField;
 @property (nonatomic, strong) SplitterTextField *nameTextField;
 @property (nonatomic, strong) SplitterTextField *basePriceTextField;
 @property (nonatomic, strong) Item *item;
@@ -20,6 +21,7 @@
 
 @implementation EditItemViewController
 
+@synthesize quantityTextField;
 @synthesize nameTextField;
 @synthesize basePriceTextField;
 @synthesize item;
@@ -31,6 +33,12 @@
   {
     self.title = @"Edit item";
     self.item = theItem;
+    
+    self.quantityTextField = [[SplitterTextField alloc] init];
+    self.quantityTextField.keyboardType = UIKeyboardTypeNumberPad;
+    self.quantityTextField.text = [NSString stringWithFormat:@"%@", self.item.quantity];
+    self.quantityTextField.delegate = self;
+
     self.nameTextField = [[SplitterTextField alloc] init];
     self.nameTextField.text = self.item.name;
     self.nameTextField.delegate = self;
@@ -51,14 +59,18 @@
   self.view.backgroundColor = [UIColor whiteColor];
   
   //  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.navigationController action:@selector(popViewControllerAnimated:)];
+  self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 50);
+  self.quantityTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
+  self.quantityTextField.backgroundColor = [UIColor redColor];
+  [self.view addSubview:self.quantityTextField];
   
-  self.nameTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 100);
-  self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
-  self.nameTextField.backgroundColor = [UIColor redColor];
+  self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width, 50);
+  self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
+  self.nameTextField.backgroundColor = [UIColor greenColor];
   [self.view addSubview:self.nameTextField];
   
-  self.basePriceTextField.frame = CGRectMake(0.0, 110.0, self.view.frame.size.width, 100);
-  self.basePriceTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
+  self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width, 50);
+  self.basePriceTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
   self.basePriceTextField.backgroundColor = [UIColor blueColor];
   [self.view addSubview:self.basePriceTextField];
 }
@@ -81,12 +93,19 @@
     finalPrice *= 1.07;
   if ([DataModel sharedInstance].isServiceTaxIncluded)
     finalPrice *= 1.10;
+
+  NSUInteger quantity = [[numberFormatter numberFromString:[self.quantityTextField.text substringToIndex:[self.quantityTextField.text length]]] intValue];
+  if (quantity < 1)
+    quantity = 1;
+  self.item.quantity = [NSNumber numberWithInt:quantity];
+  finalPrice *= quantity;
   
-  numberFormatter = [DataModel sharedInstance].currencyFormatter;
   self.item.finalPrice = [NSNumber numberWithFloat:finalPrice];
   [self.item reduceContributions:oldFinalPrice];
 
-  if ([self.nameTextField isFirstResponder])
+  if ([self.quantityTextField isFirstResponder])
+    [self.quantityTextField resignFirstResponder];
+  else if ([self.nameTextField isFirstResponder])
     [self.nameTextField resignFirstResponder];
   else
     [self.basePriceTextField resignFirstResponder];

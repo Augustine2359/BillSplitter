@@ -11,6 +11,7 @@
 
 @implementation Item
 
+@dynamic quantity;
 @dynamic basePrice;
 @dynamic finalPrice;
 @dynamic tag;
