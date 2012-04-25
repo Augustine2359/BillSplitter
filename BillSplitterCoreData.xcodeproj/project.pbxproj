@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F914426214DD15F50062EE72 /* PeopleTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914426114DD15F50062EE72 /* PeopleTableViewController.m */; };
-		F914426A14DD16260062EE72 /* EditPersonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914426914DD16260062EE72 /* EditPersonViewController.m */; };
 		F914426E14DD179C0062EE72 /* SplitItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914426D14DD179C0062EE72 /* SplitItemViewController.m */; };
 		F914427114DD17E10062EE72 /* SplitTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F914427014DD17E10062EE72 /* SplitTableViewController.m */; };
 		F914428014DD35110062EE72 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = F914427F14DD35110062EE72 /* Person.m */; };
@@ -28,14 +26,12 @@
 		F918FB5114DD1382004E9262 /* EditItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5014DD1382004E9262 /* EditItemViewController.m */; };
 		F918FB5414DD13CF004E9262 /* SplitterTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5314DD13CF004E9262 /* SplitterTextField.m */; };
 		F918FB5714DD141F004E9262 /* ItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F918FB5614DD141F004E9262 /* ItemTableViewCell.m */; };
+		F98C5A1E1547E97400887E5E /* EditPersonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F98C5A1B1547E97400887E5E /* EditPersonViewController.m */; };
+		F98C5A1F1547E97400887E5E /* PeopleTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F98C5A1D1547E97400887E5E /* PeopleTableViewController.m */; };
 		F9C56EE014E7D51700715029 /* SplitItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F914426014DD15F50062EE72 /* PeopleTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PeopleTableViewController.h; sourceTree = "<group>"; };
-		F914426114DD15F50062EE72 /* PeopleTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PeopleTableViewController.m; sourceTree = "<group>"; };
-		F914426814DD16260062EE72 /* EditPersonViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditPersonViewController.h; sourceTree = "<group>"; };
-		F914426914DD16260062EE72 /* EditPersonViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditPersonViewController.m; sourceTree = "<group>"; };
 		F914426C14DD179C0062EE72 /* SplitItemViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitItemViewController.h; sourceTree = "<group>"; };
 		F914426D14DD179C0062EE72 /* SplitItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitItemViewController.m; sourceTree = "<group>"; };
 		F914426F14DD17E10062EE72 /* SplitTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitTableViewController.h; sourceTree = "<group>"; };
@@ -70,6 +66,10 @@
 		F918FB5314DD13CF004E9262 /* SplitterTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SplitterTextField.m; path = ../SplitterTextField.m; sourceTree = "<group>"; };
 		F918FB5514DD141F004E9262 /* ItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemTableViewCell.h; sourceTree = "<group>"; };
 		F918FB5614DD141F004E9262 /* ItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemTableViewCell.m; sourceTree = "<group>"; };
+		F98C5A1A1547E97400887E5E /* EditPersonViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditPersonViewController.h; path = BillSplitterCoreData/EditPersonViewController.h; sourceTree = "<group>"; };
+		F98C5A1B1547E97400887E5E /* EditPersonViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EditPersonViewController.m; path = BillSplitterCoreData/EditPersonViewController.m; sourceTree = "<group>"; };
+		F98C5A1C1547E97400887E5E /* PeopleTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PeopleTableViewController.h; path = BillSplitterCoreData/PeopleTableViewController.h; sourceTree = "<group>"; };
+		F98C5A1D1547E97400887E5E /* PeopleTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PeopleTableViewController.m; path = BillSplitterCoreData/PeopleTableViewController.m; sourceTree = "<group>"; };
 		F9C56EDE14E7D51700715029 /* SplitItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitItemTableViewCell.h; sourceTree = "<group>"; };
 		F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitItemTableViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -183,10 +183,10 @@
 		F918FB5914DD1578004E9262 /* People */ = {
 			isa = PBXGroup;
 			children = (
-				F914426014DD15F50062EE72 /* PeopleTableViewController.h */,
-				F914426114DD15F50062EE72 /* PeopleTableViewController.m */,
-				F914426814DD16260062EE72 /* EditPersonViewController.h */,
-				F914426914DD16260062EE72 /* EditPersonViewController.m */,
+				F98C5A1A1547E97400887E5E /* EditPersonViewController.h */,
+				F98C5A1B1547E97400887E5E /* EditPersonViewController.m */,
+				F98C5A1C1547E97400887E5E /* PeopleTableViewController.h */,
+				F98C5A1D1547E97400887E5E /* PeopleTableViewController.m */,
 			);
 			name = People;
 			path = ..;
@@ -262,14 +262,14 @@
 				F918FB5114DD1382004E9262 /* EditItemViewController.m in Sources */,
 				F918FB5414DD13CF004E9262 /* SplitterTextField.m in Sources */,
 				F918FB5714DD141F004E9262 /* ItemTableViewCell.m in Sources */,
-				F914426214DD15F50062EE72 /* PeopleTableViewController.m in Sources */,
-				F914426A14DD16260062EE72 /* EditPersonViewController.m in Sources */,
 				F914426E14DD179C0062EE72 /* SplitItemViewController.m in Sources */,
 				F914427114DD17E10062EE72 /* SplitTableViewController.m in Sources */,
 				F914428014DD35110062EE72 /* Person.m in Sources */,
 				F914428314DD35120062EE72 /* Contribution.m in Sources */,
 				F914428C14DD37ED0062EE72 /* Item.m in Sources */,
 				F9C56EE014E7D51700715029 /* SplitItemTableViewCell.m in Sources */,
+				F98C5A1E1547E97400887E5E /* EditPersonViewController.m in Sources */,
+				F98C5A1F1547E97400887E5E /* PeopleTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
