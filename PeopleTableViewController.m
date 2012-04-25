@@ -115,6 +115,10 @@
     UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
   }
+  
+  [self.peopleTableView reloadData];
+  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self tableView:self.peopleTableView numberOfRowsInSection:0] - 1 inSection:0];
+  [self.peopleTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
 - (void)arrangeAlphabetically
@@ -213,8 +217,10 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  
-  return [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects] + 1;
+  NSInteger numberOfRows = [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
+  if (!self.isDeleting)
+    numberOfRows++;
+  return numberOfRows;
 }
 
 #pragma mark - UITableView Delegate
