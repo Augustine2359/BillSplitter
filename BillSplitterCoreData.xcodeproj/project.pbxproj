@@ -183,10 +183,10 @@
 		F918FB5914DD1578004E9262 /* People */ = {
 			isa = PBXGroup;
 			children = (
-				F98C5A1A1547E97400887E5E /* EditPersonViewController.h */,
-				F98C5A1B1547E97400887E5E /* EditPersonViewController.m */,
 				F98C5A1C1547E97400887E5E /* PeopleTableViewController.h */,
 				F98C5A1D1547E97400887E5E /* PeopleTableViewController.m */,
+				F98C5A1A1547E97400887E5E /* EditPersonViewController.h */,
+				F98C5A1B1547E97400887E5E /* EditPersonViewController.m */,
 			);
 			name = People;
 			path = ..;

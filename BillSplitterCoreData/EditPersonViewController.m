@@ -43,8 +43,6 @@
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
   
-  //  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.navigationController action:@selector(popViewControllerAnimated:)];
-  
   self.nameTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 100);
   self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   self.nameTextField.backgroundColor = [UIColor redColor];
@@ -58,7 +56,7 @@
 
 #pragma mark - Action methods
 
-- (IBAction)save:(UIBarButtonItem *)barButton;
+- (IBAction)done:(UIBarButtonItem *)barButton;
 {
   if ([self.nameTextField isFirstResponder])
   {
@@ -73,7 +71,12 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
-  self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save:)];
+  self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done:)];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+  [self done:nil];
 }
 
 @end

@@ -101,7 +101,7 @@
 
 #pragma mark - Action methods
 
-- (IBAction)save:(UIBarButtonItem *)barButton;
+- (IBAction)done:(UIBarButtonItem *)barButton;
 {
   self.item.name = self.nameTextField.text;
   CGFloat oldFinalPrice = [self.item.finalPrice floatValue];
@@ -135,13 +135,15 @@
     [alert show];
     return;
   }
+  
+  self.navigationItem.rightBarButtonItem = nil;
 }
 
 #pragma mark - UITextFieldDelegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
-  self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save:)];
+  self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done:)];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
@@ -180,7 +182,7 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
-  [self save:nil];
+  [self done:nil];
 }
 
 @end
