@@ -58,7 +58,6 @@
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
 
-  //  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.navigationController action:@selector(popViewControllerAnimated:)];
   self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 50);
   self.quantityTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
   self.quantityTextField.backgroundColor = [UIColor redColor];
@@ -78,6 +77,26 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
   return YES;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+  CGFloat finalPrice = [self.item.finalPrice floatValue];
+  if (finalPrice < 0.01)
+  {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"You cannot have an item that costs nothing" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+    [alert show];
+    self.item.basePrice = [NSNumber numberWithFloat:1];
+    CGFloat finalPrice = 1;
+    if ([DataModel sharedInstance].isGstIncluded)
+      finalPrice *= 1.07;
+    if ([DataModel sharedInstance].isServiceTaxIncluded)
+      finalPrice *= 1.10;
+    finalPrice *= [self.item.quantity intValue];
+    self.item.finalPrice = [NSNumber numberWithFloat:finalPrice];
+
+    return;
+  }
 }
 
 #pragma mark - Action methods
@@ -110,7 +129,12 @@
   else
     [self.basePriceTextField resignFirstResponder];
 
-  [self.navigationController popViewControllerAnimated:YES];
+  if (finalPrice < 0.01)
+  {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"You cannot have an item that costs nothing" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+    [alert show];
+    return;
+  }
 }
 
 #pragma mark - UITextFieldDelegate
@@ -152,6 +176,11 @@
     }
   }
   return shouldChange;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+  [self save:nil];
 }
 
 @end
