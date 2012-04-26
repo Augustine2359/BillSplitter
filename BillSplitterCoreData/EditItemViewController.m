@@ -57,7 +57,7 @@
 {
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
-  
+
   //  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.navigationController action:@selector(popViewControllerAnimated:)];
   self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 50);
   self.quantityTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;

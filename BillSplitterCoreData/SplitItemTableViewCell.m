@@ -10,6 +10,7 @@
 #import "Item.h"
 #import "DataModel.h"
 #import "Person.h"
+#import "SplitterTextField.h"
 
 @implementation SplitItemTableViewCell
 
@@ -37,7 +38,8 @@
       self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width/2, 40)];
       [self.expandToggleButton addSubview:self.nameLabel];
 
-      self.contributionTextField = [[UITextField alloc] initWithFrame:CGRectMake(self.frame.size.width/2, 0, self.frame.size.width/2, 40)];
+      self.contributionTextField = [[SplitterTextField alloc] init];
+      self.contributionTextField.frame = CGRectMake(self.frame.size.width/2, 0, self.frame.size.width/2, 40);
       self.contributionTextField.keyboardType = UIKeyboardTypeDecimalPad;
       self.contributionTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
       [self.expandToggleButton addSubview:self.contributionTextField];
@@ -48,7 +50,8 @@
       self.percentageSlider.maximumValue = 100;
       [self.contentView addSubview:self.percentageSlider];
 
-      self.percentageTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 40, 60, 40)];
+      self.percentageTextField = [[SplitterTextField alloc] init];
+      self.percentageTextField.frame = CGRectMake(0, 40, 60, 40);
       self.percentageTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
       self.percentageTextField.keyboardType = UIKeyboardTypeDecimalPad;
       self.percentageTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
