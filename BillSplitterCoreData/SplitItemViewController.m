@@ -24,12 +24,16 @@
 @property (nonatomic, strong) NSMutableArray *cellIsExpandedArray;
 @property (nonatomic, strong) NSMutableArray *headerViewsArray;
 
+@property (nonatomic, strong) UISlider *activeSlider;
 @property (nonatomic, strong) SplitItemTableViewCell *activeCell;
 
 - (void)calculateTotalAmountContributed;
 - (void)splitEvenly;
 - (void)toggleExpanded:(id)sender;
 - (void)save;
+- (void)sliderTouchDown:(UISlider *)slider;
+- (void)sliderRelease:(UISlider *)slider;
+- (void)sliderValueChanged:(UISlider *)slider;
 - (void)increaseInContribution:(Contribution *)contribution newValue:(CGFloat)newContributionAmount;
 
 @end
@@ -46,6 +50,7 @@
 @synthesize cellIsExpandedArray;
 @synthesize contributionsArray;
 @synthesize headerViewsArray;
+@synthesize activeSlider;
 @synthesize activeCell;
 
 - (id)initWithItem:(Item *)theItem andPeople:(NSArray *)people
@@ -183,9 +188,33 @@
                                                                            action:@selector(splitEvenly)];
 }
 
+- (void)sliderTouchDown:(UISlider *)slider
+{
+  if (self.activeSlider == nil)
+  {
+    [slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    self.activeSlider = slider;
+    self.activeCell = (SplitItemTableViewCell *)slider.superview.superview;
+  }
+  else
+    [slider cancelTrackingWithEvent:nil];
+}
+
+- (void)sliderRelease:(UISlider *)slider
+{
+  if ([slider isEqual:self.activeSlider])
+  {
+    [slider removeTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    self.activeSlider = nil;
+    self.activeCell = nil;
+    slider.exclusiveTouch = NO;
+  }
+}
+
 - (void)sliderValueChanged:(UISlider *)slider
 {
-  self.activeCell = (SplitItemTableViewCell *)slider.superview.superview;
+  if (![slider isEqual:self.activeSlider])
+    return;
 
   Contribution *contribution = self.activeCell.contribution;
   CGFloat ratio = [contribution.amount floatValue] / [self.item.finalPrice floatValue];
@@ -200,15 +229,13 @@
     [self.contributionsTableView endUpdates];
   }
 
-  //it's an increase in contribution
+//  it's an increase in contribution
   else
   {
     [self increaseInContribution:contribution newValue:newContributionAmount];
   }
-  
+
   [self calculateTotalAmountContributed];
-  
-  self.activeCell = nil;
 }
 
 - (void)increaseInContribution:(Contribution *)contribution newValue:(CGFloat)newContributionAmount
@@ -232,7 +259,7 @@
         [nonZeroContributionArray addObject:otherContribution];
     
     changeInAmount /= [nonZeroContributionArray count]; //the eaten part is split evenly
-    NSLog(@"%@ %f", nonZeroContributionArray, changeInAmount);
+//    NSLog(@"%@ %f", nonZeroContributionArray, changeInAmount);
     
     for (Contribution *otherContribution in nonZeroContributionArray)
     {
@@ -250,7 +277,7 @@
     while (spareAmountToReduce != 0)
     {
       changeInAmount = spareAmountToReduce;
-      NSLog(@"%f", spareAmountToReduce);
+//      NSLog(@"%f", spareAmountToReduce);
       spareAmountToReduce = 0;
       nonZeroContributionArray = [NSMutableArray array];
       for (Contribution *otherContribution in self.contributionsArray)
@@ -259,7 +286,7 @@
       
       changeInAmount /= [nonZeroContributionArray count]; //the eaten part is split evenly
 
-      NSLog(@"%@ %f", nonZeroContributionArray, changeInAmount);
+//      NSLog(@"%@ %f", nonZeroContributionArray, changeInAmount);
 
       for (Contribution *otherContribution in nonZeroContributionArray)
       {
@@ -295,8 +322,11 @@
     cell = [[SplitItemTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier contribution:contribution];
     cell.contributionTextField.delegate = self;
     cell.percentageTextField.delegate = self;
-    [cell.percentageSlider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    [cell.percentageSlider addTarget:self action:@selector(sliderTouchDown:) forControlEvents:UIControlEventTouchDown];
+    [cell.percentageSlider addTarget:self action:@selector(sliderRelease:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.percentageSlider addTarget:self action:@selector(sliderRelease:) forControlEvents:UIControlEventTouchUpOutside];
   }
+
   cell.contribution = contribution;
   cell.nameLabel.text = contribution.person.name;
   cell.selectionStyle=UITableViewCellSelectionStyleNone;
