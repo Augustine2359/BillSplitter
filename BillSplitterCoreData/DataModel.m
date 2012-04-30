@@ -23,8 +23,10 @@
 @synthesize coordinator;
 
 @synthesize currencyFormatter;
+@synthesize discount;
 @synthesize isGstIncluded;
 @synthesize isServiceTaxIncluded;
+
 
 + (DataModel *)sharedInstance
 {
@@ -37,6 +39,7 @@
     
     myInstance.currencyFormatter = [[NSNumberFormatter alloc] init];
     myInstance.currencyFormatter.numberStyle = NSNumberFormatterCurrencyStyle;
+    myInstance.discount = [NSNumber numberWithFloat:0];
     myInstance.isGstIncluded = NO;
     myInstance.isServiceTaxIncluded = NO;
   }
@@ -59,6 +62,7 @@
 
   CGFloat oldFinalPrice;
   CGFloat finalPrice;
+  CGFloat undiscountedPortion = 100.0 - [self.discount floatValue];
 
   for (Item *item in fetchedResultsController.fetchedObjects)
   {
@@ -68,6 +72,7 @@
       finalPrice *= 1.07;
     if (self.isServiceTaxIncluded)
       finalPrice *= 1.10;
+    finalPrice *= undiscountedPortion / 100.0;
     item.finalPrice = [NSNumber numberWithFloat:finalPrice];
   }
   if (finalPrice != oldFinalPrice)

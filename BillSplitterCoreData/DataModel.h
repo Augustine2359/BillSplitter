@@ -15,6 +15,7 @@
 @property (nonatomic, strong) NSPersistentStoreCoordinator *coordinator;
 
 @property (nonatomic, strong) NSNumberFormatter *currencyFormatter;
+@property (nonatomic) NSNumber *discount;
 @property (nonatomic) BOOL isGstIncluded;
 @property (nonatomic) BOOL isServiceTaxIncluded;
 

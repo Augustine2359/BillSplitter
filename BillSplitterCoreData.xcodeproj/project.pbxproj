@@ -29,6 +29,7 @@
 		F98C5A1E1547E97400887E5E /* EditPersonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F98C5A1B1547E97400887E5E /* EditPersonViewController.m */; };
 		F98C5A1F1547E97400887E5E /* PeopleTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F98C5A1D1547E97400887E5E /* PeopleTableViewController.m */; };
 		F9C56EE014E7D51700715029 /* SplitItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */; };
+		F9CDF5C8154E7CFE00736A78 /* DiscountsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F9CDF5C7154E7CFE00736A78 /* DiscountsViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,8 @@
 		F98C5A1D1547E97400887E5E /* PeopleTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PeopleTableViewController.m; path = BillSplitterCoreData/PeopleTableViewController.m; sourceTree = "<group>"; };
 		F9C56EDE14E7D51700715029 /* SplitItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitItemTableViewCell.h; sourceTree = "<group>"; };
 		F9C56EDF14E7D51700715029 /* SplitItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitItemTableViewCell.m; sourceTree = "<group>"; };
+		F9CDF5C6154E7CFE00736A78 /* DiscountsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = DiscountsViewController.h; sourceTree = "<group>"; };
+		F9CDF5C7154E7CFE00736A78 /* DiscountsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiscountsViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +150,8 @@
 				F918FB4714DD0DA0004E9262 /* DataModel.m */,
 				F918FB5214DD13CE004E9262 /* SplitterTextField.h */,
 				F918FB5314DD13CF004E9262 /* SplitterTextField.m */,
+				F9CDF5C6154E7CFE00736A78 /* DiscountsViewController.h */,
+				F9CDF5C7154E7CFE00736A78 /* DiscountsViewController.m */,
 				F918FB4214DCFF6E004E9262 /* Items */,
 				F918FB5914DD1578004E9262 /* People */,
 				F914426B14DD17890062EE72 /* Split */,
@@ -270,6 +275,7 @@
 				F9C56EE014E7D51700715029 /* SplitItemTableViewCell.m in Sources */,
 				F98C5A1E1547E97400887E5E /* EditPersonViewController.m in Sources */,
 				F98C5A1F1547E97400887E5E /* PeopleTableViewController.m in Sources */,
+				F9CDF5C8154E7CFE00736A78 /* DiscountsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
