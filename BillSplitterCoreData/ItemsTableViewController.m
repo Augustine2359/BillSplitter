@@ -18,7 +18,6 @@
 @property (nonatomic, strong) UITableView *itemsTableView;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
-@property (nonatomic) BOOL isDeleting;
 
 - (void)callActionSheet;
 - (void)addItem;
@@ -33,14 +32,12 @@
 @synthesize itemsTableView;
 @synthesize context;
 @synthesize fetchedResultsController;
-@synthesize isDeleting;
 
 - (id)init
 {
   self = [super init];
   if (self)
   {
-    self.isDeleting = NO;
     self.title = @"Items";
     self.context = [DataModel sharedInstance].context;
   }
@@ -55,18 +52,20 @@
   [super viewDidLoad];
   
   self.itemsTableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
-  self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+  self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;
   [self.view addSubview:self.itemsTableView];
-  
-  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
-  self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
+
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
+  self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+  self.itemsTableView.editing = NO;
+
   [self fetchByTag];
   [self.itemsTableView reloadData];
 }
@@ -109,8 +108,9 @@
 
 - (void)toggleDeletingMode
 {
-  self.isDeleting = !self.isDeleting;
-  if (self.isDeleting)
+  self.itemsTableView.editing = !self.itemsTableView.editing;
+
+  if (self.itemsTableView.isEditing)
   {
     UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(toggleDeletingMode)];
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
@@ -150,7 +150,6 @@
 
 - (void)deletingDone
 {
-  self.isDeleting = NO;
   UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
   self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
@@ -220,9 +219,20 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
   NSInteger numberOfRows = [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
-  if (!self.isDeleting)
+  if (!self.itemsTableView.isEditing)
     numberOfRows++;
   return  numberOfRows;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
+  for (Contribution *contribution in item.contributions)
+    [self.context deleteObject:contribution];
+
+  [self.context deleteObject:item];
+  [self fetchByTag];
+  [self.itemsTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
 }
 
 #pragma mark - UITableView Delegate
@@ -230,24 +240,10 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects])
-    if (self.isDeleting)
-      NSLog(@"delete mode, cannot add");
-    else
-      [self addItem];
+    [self addItem];
   else
   {
     Item *item = [self.fetchedResultsController objectAtIndexPath:indexPath];
-
-    if (self.isDeleting)
-    {
-      for (Contribution *contribution in item.contributions)
-        [self.context deleteObject:contribution];
-
-      [self.context deleteObject:item];
-      [self fetchByTag];
-      [self.itemsTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
-      return;
-    }
     EditItemViewController *editItemViewController = [[EditItemViewController alloc] initWithItem:item];
     [self.navigationController pushViewController:editItemViewController animated:YES];
   }
@@ -255,7 +251,15 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  return 40;
+  return 45;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  BOOL canEdit = YES;
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
+    canEdit = NO;
+  return canEdit;
 }
 
 @end

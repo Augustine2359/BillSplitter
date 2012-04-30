@@ -17,7 +17,6 @@
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) UITableView *peopleTableView;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
-@property (nonatomic) BOOL isDeleting;
 
 - (void)callActionSheet;
 - (void)addPerson;
@@ -32,7 +31,6 @@
 @synthesize context;
 @synthesize peopleTableView;
 @synthesize fetchedResultsController;
-@synthesize isDeleting;
 
 - (id)init
 {
@@ -57,14 +55,16 @@
   self.peopleTableView.dataSource = self;
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
-  
-  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
-  self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
+
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
+  self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+  self.peopleTableView.editing = NO;
+
   [self fetchByTag];
   [self.peopleTableView reloadData];
 }
@@ -104,8 +104,9 @@
 
 - (void)toggleDeletingMode
 {
-  self.isDeleting = !self.isDeleting;
-  if (self.isDeleting)
+  self.peopleTableView.editing = !self.peopleTableView.editing;
+
+  if (self.peopleTableView.isEditing)
   {
     UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(toggleDeletingMode)];
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
@@ -141,6 +142,12 @@
   }
   
   [self.peopleTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void)deletingDone
+{
+  UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
+  self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 #pragma mark - Utility methods
@@ -185,10 +192,10 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   static NSString* MyIdentifier = @"MyIdentifier";
-  
-  UITableViewCell *cell = [self.peopleTableView dequeueReusableCellWithIdentifier:MyIdentifier];
 
+  UITableViewCell *cell = [self.peopleTableView dequeueReusableCellWithIdentifier:MyIdentifier];
   Person *person;
+
   if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
     person = nil;
   else
@@ -199,6 +206,7 @@
 
   cell.textLabel.text = person.name;
   cell.textLabel.textAlignment = UITextAlignmentLeft;
+
   if (cell.textLabel.text == nil)
   {
     cell.textLabel.text = @"Tap here to add a new person";
@@ -218,42 +226,47 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
   NSInteger numberOfRows = [[[self.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];
-  if (!self.isDeleting)
+  if (!self.peopleTableView.isEditing)
     numberOfRows++;
   return numberOfRows;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  Person *person = [self.fetchedResultsController objectAtIndexPath:indexPath];
+  for (Contribution *contribution in person.contributions)
+    [self.context deleteObject:contribution];
+
+  [self.context deleteObject:person];
+  [self fetchByTag];
+  [self.peopleTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
 }
 
 #pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
-    if (self.isDeleting)
-      NSLog(@"delete mode, cannot add");
-    else
-      [self addPerson];
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects])
+    [self addPerson];
   else
   {
     Person *person = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    
-    if (self.isDeleting)
-    {
-      for (Contribution *contribution in person.contributions)
-        [self.context deleteObject:contribution];
-      
-      [self.context deleteObject:person];
-      [self fetchByTag];
-      [self.peopleTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
-      return;
-    }
     EditPersonViewController *editPersonViewController = [[EditPersonViewController alloc] initWithPerson:person];
-    [self.navigationController pushViewController:editPersonViewController animated:YES];    
+    [self.navigationController pushViewController:editPersonViewController animated:YES];
   }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  return 40;
+  return 45;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  BOOL canEdit = YES;
+  if (indexPath.row == [[[self.fetchedResultsController sections] objectAtIndex:indexPath.section] numberOfObjects])
+    canEdit = NO;
+  return canEdit;
 }
 
 @end

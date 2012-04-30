@@ -36,14 +36,15 @@
   {
     self.textLabel.textAlignment = UITextAlignmentCenter;
     
-    self.itemQuantityLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 40, self.frame.size.height)];
+    self.itemQuantityLabel = [[UILabel alloc] initWithFrame:CGRectMake(5, 0, 35, self.frame.size.height)];
     self.itemQuantityLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth;
     [self.contentView addSubview:self.itemQuantityLabel];
 
-    self.itemPriceLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.size.width - 80, 0, 80, self.frame.size.height)];
-    self.itemPriceLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin;
+    self.itemPriceLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.size.width - 105, 0, 100, self.frame.size.height)];
+    self.itemPriceLabel.textAlignment = UITextAlignmentRight;
+    self.itemPriceLabel.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth;
     [self.contentView addSubview:self.itemPriceLabel];
-    
+
     self.itemNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(self.itemQuantityLabel.frame), 0, CGRectGetMinX(self.itemPriceLabel.frame) - CGRectGetMaxX(self.itemQuantityLabel.frame), self.frame.size.height)];
     self.itemNameLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     [self.contentView addSubview:self.itemNameLabel];
@@ -84,7 +85,6 @@
       self.itemPriceLabel.textColor = SETTLED_ITEM_TEXT_COLOR;
 
   }
-  
 }
 
 @end
