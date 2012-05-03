@@ -93,19 +93,17 @@
 {
   [super viewDidLoad];
   
-  self.itemsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width/2, self.view.bounds.size.height) style:UITableViewStylePlain];
-  self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
+  self.itemsTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;
   [self.view addSubview:self.itemsTableView];
   
-  self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2 + 1, 0, self.view.bounds.size.width/2 - 1, self.view.bounds.size.height) style:UITableViewStylePlain];
-  self.peopleTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+  self.peopleTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
   self.peopleTableView.allowsMultipleSelection = YES;
   self.peopleTableView.dataSource = self;
   self.peopleTableView.delegate = self;
   [self.view addSubview:self.peopleTableView];
-  
+
   self.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Assign" style:UIBarButtonItemStyleBordered target:self action:@selector(assign:)];
   self.rightBarButtonItem.enabled = YES;
   self.navigationItem.rightBarButtonItem = self.rightBarButtonItem;
@@ -114,6 +112,17 @@
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
+
+  if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+  {
+    self.itemsTableView.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height/2);
+    self.peopleTableView.frame = CGRectMake(0, self.view.bounds.size.height/2 + 1, self.view.bounds.size.width, self.view.bounds.size.height/2 - 1);
+  }
+  else
+  {
+    self.itemsTableView.frame = CGRectMake(0, 0, self.view.bounds.size.width/2, self.view.bounds.size.height);
+    self.peopleTableView.frame = CGRectMake(self.view.bounds.size.width/2 + 1, 0, self.view.bounds.size.width/2 - 1, self.view.bounds.size.height);
+  }
 
   NSError *error;
   [self.fetchedItemResultsController performFetch:&error];
@@ -126,6 +135,22 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
   return YES;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+  [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+
+  if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+  {
+    self.itemsTableView.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height/2);
+    self.peopleTableView.frame = CGRectMake(0, self.view.bounds.size.height/2 + 1, self.view.bounds.size.width, self.view.bounds.size.height/2 - 1);
+  }
+  else
+  {
+    self.itemsTableView.frame = CGRectMake(0, 0, self.view.bounds.size.width/2, self.view.bounds.size.height);
+    self.peopleTableView.frame = CGRectMake(self.view.bounds.size.width/2 + 1, 0, self.view.bounds.size.width/2 - 1, self.view.bounds.size.height);
+  }
 }
 
 #pragma mark - Action methods
@@ -153,18 +178,17 @@
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
   NSMutableArray *contributions = [item.contributions mutableCopy];
   NSMutableArray *people = [self.fetchedPersonResultsController.fetchedObjects mutableCopy];
-  BOOL personWasContributor;
   BOOL cellAtIndexPathWasVisible;
+  NSUInteger lowestIndex = NSNotFound;
   
   for (Contribution *contribution in contributions)
   {
-    personWasContributor = NO;
-
     for (Person *person in people)
       if ([contribution.person isEqual:person])
       {
-        personWasContributor = YES;
         NSUInteger index = [people indexOfObject:person];
+        if (index < lowestIndex)
+          lowestIndex = index;
         NSIndexPath *aIndexPath = [NSIndexPath indexPathForRow:index inSection:0];
         NSIndexPath *bIndexPath;
         cellAtIndexPathWasVisible = NO;
@@ -181,9 +205,13 @@
         if (cellAtIndexPathWasVisible)
           [visibleCells removeObject:bIndexPath];
         [self.peopleTableView selectRowAtIndexPath:aIndexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+
         break;
       }
   }
+
+  if (lowestIndex != NSNotFound)
+    [self.peopleTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:lowestIndex inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)deselectContributorsToItem:(NSIndexPath *)indexPath
