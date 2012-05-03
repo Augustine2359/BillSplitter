@@ -105,7 +105,6 @@
   [self.view addSubview:self.peopleTableView];
 
   self.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Assign" style:UIBarButtonItemStyleBordered target:self action:@selector(assign:)];
-  self.rightBarButtonItem.enabled = YES;
   self.navigationItem.rightBarButtonItem = self.rightBarButtonItem;
 }
 
@@ -130,6 +129,8 @@
   
   [self.itemsTableView reloadData];
   [self.peopleTableView reloadData];
+  
+  self.rightBarButtonItem.enabled = NO;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
@@ -209,7 +210,7 @@
         break;
       }
   }
-
+  
   if (lowestIndex != NSNotFound)
     [self.peopleTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:lowestIndex inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
@@ -337,19 +338,28 @@
       [UIView animateWithDuration:0 animations:^{} completion:^(BOOL finished) {[self selectContributorsToItem:indexPath];}];
     }
 
+  [UIView animateWithDuration:0 animations:^{} completion:^(BOOL finished) {
+    if (([self.itemsTableView.indexPathsForSelectedRows count] == 0) || ([self.peopleTableView.indexPathsForSelectedRows count] == 0))
+      self.navigationItem.rightBarButtonItem.enabled = NO;
+    else
+      self.navigationItem.rightBarButtonItem.enabled = YES;
+  }];
+
   return indexPath;
 }
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willDeselectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   if (([tableView isEqual:self.itemsTableView]) && ([[tableView indexPathForSelectedRow] isEqual:indexPath]))
-  {
     for (NSIndexPath *aIndexPath in [self.peopleTableView indexPathsForSelectedRows])
-    {
       [self.peopleTableView deselectRowAtIndexPath:aIndexPath animated:NO];
 
-    }
-  }
+  [UIView animateWithDuration:0 animations:^{} completion:^(BOOL finished) {
+    if (([self.itemsTableView.indexPathsForSelectedRows count] == 0) || ([self.peopleTableView.indexPathsForSelectedRows count] == 0))
+      self.navigationItem.rightBarButtonItem.enabled = NO;
+    else
+      self.navigationItem.rightBarButtonItem.enabled = YES;
+  }];
 
   return indexPath;
 }
