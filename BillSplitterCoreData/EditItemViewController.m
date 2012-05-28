@@ -58,25 +58,55 @@
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
 
-  self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 50);
-  self.quantityTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
   self.quantityTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.quantityTextField];
-  
-  self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width, 50);
-  self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
+
   self.nameTextField.backgroundColor = [UIColor greenColor];
   [self.view addSubview:self.nameTextField];
-  
-  self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width, 50);
-  self.basePriceTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
+
   self.basePriceTextField.backgroundColor = [UIColor blueColor];
   [self.view addSubview:self.basePriceTextField];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+  [super viewWillAppear:animated];
+
+  if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+  {
+    self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height/6);
+    self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
+    self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
+  }
+  else
+  {
+    self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width/2, self.view.frame.size.height/3);
+    self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
+    self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
+  }
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
   return YES;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+  [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+
+  if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+  {
+    self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height/6);
+    self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
+    self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
+  }
+  else
+  {
+    self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width/2, self.view.frame.size.height/3);
+    self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
+    self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
+  }
 }
 
 - (void)viewWillDisappear:(BOOL)animated

@@ -42,16 +42,38 @@
 {
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
-  
-  self.nameTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, 100);
-  self.nameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+
   self.nameTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.nameTextField];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+  [super viewWillAppear:animated];
+
+  CGRect rect = CGRectZero;
+  if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+    rect.size = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height/2);
+  else
+    rect.size = CGSizeMake(self.view.frame.size.width/2, self.view.frame.size.height);
+  self.nameTextField.frame = rect;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
   return YES;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+  [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+
+  CGRect rect = CGRectZero;
+  if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+    rect.size = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height/2);
+  else
+    rect.size = CGSizeMake(self.view.frame.size.width/2, self.view.frame.size.height);
+  self.nameTextField.frame = rect;
 }
 
 #pragma mark - Action methods
