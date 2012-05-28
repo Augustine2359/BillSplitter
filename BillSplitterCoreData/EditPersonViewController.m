@@ -8,11 +8,15 @@
 
 #import "EditPersonViewController.h"
 #import "SplitterTextField.h"
+#import "Contribution.h"
+#import "Item.h"
 
-@interface EditPersonViewController()
+@interface EditPersonViewController() <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) SplitterTextField *nameTextField;
 @property (nonatomic, strong) Person *person;
+@property (nonatomic, strong) NSArray *contributions;
+@property (nonatomic, strong) UITableView *contributionsTableView;
 
 @end
 
@@ -20,6 +24,8 @@
 
 @synthesize nameTextField;
 @synthesize person;
+@synthesize contributions;
+@synthesize contributionsTableView;
 
 - (id)initWithPerson:(Person *)thePerson
 {
@@ -28,9 +34,15 @@
   {
     self.title = @"Edit person";
     self.person = thePerson;
+    self.contributions = [self.person.contributions allObjects];
+
     self.nameTextField = [[SplitterTextField alloc] init];
     self.nameTextField.text = self.person.name;
     self.nameTextField.delegate = self;
+
+    self.contributionsTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.contributionsTableView.dataSource = self;
+    self.contributionsTableView.delegate = self;
   }
   return self;
 }
@@ -45,6 +57,8 @@
 
   self.nameTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.nameTextField];
+
+  [self.view addSubview:self.contributionsTableView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -52,11 +66,20 @@
   [super viewWillAppear:animated];
 
   CGRect rect = CGRectZero;
+  CGRect rect2;
+
   if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+  {
     rect.size = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height/2);
+    rect2 = CGRectOffset(rect, 0, self.view.frame.size.height/2);
+  }
   else
+  {
     rect.size = CGSizeMake(self.view.frame.size.width/2, self.view.frame.size.height);
+    rect2 = CGRectOffset(rect, self.view.frame.size.width/2, 0);
+  }
   self.nameTextField.frame = rect;
+  self.contributionsTableView.frame = rect2;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
@@ -69,11 +92,20 @@
   [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 
   CGRect rect = CGRectZero;
+  CGRect rect2;
+
   if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
+  {
     rect.size = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height/2);
+    rect2 = CGRectOffset(rect, 0, self.view.frame.size.height/2);
+  }
   else
+  {
     rect.size = CGSizeMake(self.view.frame.size.width/2, self.view.frame.size.height);
+    rect2 = CGRectOffset(rect, self.view.frame.size.width/2, 0);
+  }
   self.nameTextField.frame = rect;
+  self.contributionsTableView.frame = rect2;
 }
 
 #pragma mark - Action methods
@@ -88,6 +120,45 @@
 
   [self.navigationController popViewControllerAnimated:YES];
 }
+
+#pragma mark - UITableViewDataSource
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  static NSString *MyIdentifier = @"MyIdentifier";
+
+  UITableViewCell *cell = [self.contributionsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
+
+  if (cell == nil)
+  {
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+  }
+
+  Contribution *contribution = [self.contributions objectAtIndex:indexPath.row];
+  cell.textLabel.text = contribution.item.name;
+  cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", contribution.amount];
+
+  return cell;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+  return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+  return [self.contributions count];
+}
+
+#pragma mark - UITableViewDelegate
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return 40;
+}
+
 
 #pragma mark - UITextFieldDelegate
 

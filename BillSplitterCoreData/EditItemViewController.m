@@ -9,13 +9,17 @@
 #import "EditItemViewController.h"
 #import "SplitterTextField.h"
 #import "DataModel.h"
+#import "Contribution.h"
+#import "Person.h"
 
-@interface EditItemViewController()
+@interface EditItemViewController() <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) SplitterTextField *quantityTextField;
 @property (nonatomic, strong) SplitterTextField *nameTextField;
 @property (nonatomic, strong) SplitterTextField *basePriceTextField;
 @property (nonatomic, strong) Item *item;
+@property (nonatomic, strong) NSArray *contributions;
+@property (nonatomic, strong) UITableView *contributorsTableView;
 
 @end
 
@@ -25,6 +29,8 @@
 @synthesize nameTextField;
 @synthesize basePriceTextField;
 @synthesize item;
+@synthesize contributions;
+@synthesize contributorsTableView;
 
 - (id)initWithItem:(Item *)theItem
 {
@@ -33,6 +39,7 @@
   {
     self.title = @"Edit item";
     self.item = theItem;
+    self.contributions = [item.contributions allObjects];
     
     self.quantityTextField = [[SplitterTextField alloc] init];
     self.quantityTextField.keyboardType = UIKeyboardTypeNumberPad;
@@ -47,6 +54,10 @@
     self.basePriceTextField.keyboardType = UIKeyboardTypeDecimalPad;
     self.basePriceTextField.text = [NSString stringWithFormat:@"$%@", self.item.basePrice];
     self.basePriceTextField.delegate = self;
+
+    self.contributorsTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.contributorsTableView.dataSource = self;
+    self.contributorsTableView.delegate = self;
   }
   return self;
 }
@@ -66,6 +77,8 @@
 
   self.basePriceTextField.backgroundColor = [UIColor blueColor];
   [self.view addSubview:self.basePriceTextField];
+
+  [self.view addSubview:self.contributorsTableView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -77,12 +90,14 @@
     self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height/6);
     self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
     self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
+    self.contributorsTableView.frame = CGRectMake(0.0, self.view.frame.size.height/2, self.view.frame.size.width, self.view.frame.size.height/2);
   }
   else
   {
     self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width/2, self.view.frame.size.height/3);
     self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
     self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
+    self.contributorsTableView.frame = CGRectMake(self.view.frame.size.width/2, 0.0, self.view.frame.size.width/2, self.view.frame.size.height);
   }
 }
 
@@ -100,12 +115,14 @@
     self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height/6);
     self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
     self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width, self.view.frame.size.height/6);
+    self.contributorsTableView.frame = CGRectMake(0.0, self.view.frame.size.height/2, self.view.frame.size.width, self.view.frame.size.height/2);
   }
   else
   {
     self.quantityTextField.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width/2, self.view.frame.size.height/3);
     self.nameTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.quantityTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
     self.basePriceTextField.frame = CGRectMake(0.0, CGRectGetMaxY(self.nameTextField.frame), self.view.frame.size.width/2, self.view.frame.size.height/3);
+    self.contributorsTableView.frame = CGRectMake(self.view.frame.size.width/2, 0.0, self.view.frame.size.width/2, self.view.frame.size.height);
   }
 }
 
@@ -167,6 +184,45 @@
   }
   
   self.navigationItem.rightBarButtonItem = nil;
+  [self.contributorsTableView reloadData];
+}
+
+#pragma mark - UITableViewDataSource
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  static NSString *MyIdentifier = @"MyIdentifier";
+
+  UITableViewCell *cell = [self.contributorsTableView dequeueReusableCellWithIdentifier:MyIdentifier];
+
+  if (cell == nil)
+  {
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:MyIdentifier];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+  }
+
+  Contribution *contribution = [self.contributions objectAtIndex:indexPath.row];
+  cell.textLabel.text = contribution.person.name;
+  cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", contribution.amount];
+
+  return cell;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+  return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+  return [self.contributions count];
+}
+
+#pragma mark - UITableViewDelegate
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return 40;
 }
 
 #pragma mark - UITextFieldDelegate
