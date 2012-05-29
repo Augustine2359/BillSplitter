@@ -13,9 +13,17 @@
 #import "DataModel.h"
 #import "ItemTableViewCell.h"
 
+#define UNSETTLED_TOTAL_BACKGROUND_COLOR [UIColor redColor]
+#define UNSETTLED_TOTAL_TEXT_COLOR [UIColor redColor]
+
 @interface ItemsTableViewController()
 
 @property (nonatomic, strong) UITableView *itemsTableView;
+@property (nonatomic, strong) UILabel *subtotalLabel;
+@property (nonatomic, strong) UILabel *gstLabel;
+@property (nonatomic, strong) UILabel *serviceTaxLabel;
+@property (nonatomic, strong) UILabel *discountLabel;
+@property (nonatomic, strong) UILabel *totalLabel;
 @property (nonatomic, strong) NSManagedObjectContext *context;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
@@ -24,12 +32,18 @@
 - (void)toggleDeletingMode;
 - (void)arrangeAlphabetically;
 - (void)fetchByTag;
+- (void)calculateTotals;
 
 @end
 
 @implementation ItemsTableViewController
 
 @synthesize itemsTableView;
+@synthesize subtotalLabel;
+@synthesize gstLabel;
+@synthesize serviceTaxLabel;
+@synthesize discountLabel;
+@synthesize totalLabel;
 @synthesize context;
 @synthesize fetchedResultsController;
 
@@ -55,7 +69,25 @@
   self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;
+  CGFloat heightPerLabel = 20;
+  self.itemsTableView.sectionFooterHeight = 5 * heightPerLabel;
   [self.view addSubview:self.itemsTableView];
+  
+  self.subtotalLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, heightPerLabel)];
+  self.subtotalLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  self.subtotalLabel.textAlignment = UITextAlignmentRight;
+  self.gstLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+  self.gstLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  self.gstLabel.textAlignment = UITextAlignmentRight;
+  self.serviceTaxLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 2*heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+  self.serviceTaxLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  self.serviceTaxLabel.textAlignment = UITextAlignmentRight;
+  self.discountLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 3*heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+  self.discountLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  self.discountLabel.textAlignment = UITextAlignmentRight;
+  self.totalLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 4*heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+  self.totalLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  self.totalLabel.textAlignment = UITextAlignmentRight;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -67,6 +99,7 @@
   self.itemsTableView.editing = NO;
 
   [self fetchByTag];
+  [self calculateTotals];
   [self.itemsTableView reloadData];
 }
 
@@ -92,14 +125,15 @@
   item.quantity = [NSNumber numberWithInt:1];
   item.name = [NSString stringWithFormat:@"Item %c",[[self.fetchedResultsController.sections objectAtIndex:0] numberOfObjects]
                + 65];
-  item.basePrice = [NSNumber numberWithFloat:100];
-  item.finalPrice = [NSNumber numberWithFloat:100];
+  item.basePrice = [NSNumber numberWithFloat:0];
+  item.finalPrice = [NSNumber numberWithFloat:0];
   item.tag = [NSNumber numberWithInt:[self.fetchedResultsController.fetchedObjects count]];
   [item setContributions:[NSSet set]];
 
   [self.itemsTableView beginUpdates];
   [self.itemsTableView insertRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationRight];
   [self fetchByTag];
+  [self calculateTotals];
   [self.itemsTableView endUpdates];
 
   indexPath = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:0];
@@ -172,6 +206,42 @@
   [self.fetchedResultsController performFetch:&error];
 }
 
+- (void)calculateTotals
+{
+  CGFloat subtotal = 0;
+  for (Item *item in self.fetchedResultsController.fetchedObjects)
+    subtotal += [item.basePrice floatValue];
+  NSNumber *number = [NSNumber numberWithFloat:subtotal];
+  NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;
+  self.subtotalLabel.text = [NSString stringWithFormat:@"Subtotal: %@", [numberFormatter stringFromNumber:number]];
+  
+  NSNumber *GST = [NSNumber numberWithFloat:0];
+  if ([DataModel sharedInstance].isGstIncluded)
+  {
+    GST = [NSNumber numberWithFloat:subtotal * 7.0 / 100.0];
+    subtotal = subtotal * 107.0 / 100.0;
+    number = [NSNumber numberWithFloat:subtotal];
+  }
+  self.gstLabel.text = [NSString stringWithFormat:@"7%% GST: %@", [numberFormatter stringFromNumber:GST]];
+
+  NSNumber *serviceTax = [NSNumber numberWithFloat:0];
+  if ([DataModel sharedInstance].isServiceTaxIncluded)
+  {
+    serviceTax = [NSNumber numberWithFloat:subtotal * 10.0 / 100.0];
+    subtotal = subtotal * 110.0 / 100.0;
+    number = [NSNumber numberWithFloat:subtotal];
+  }
+  self.serviceTaxLabel.text = [NSString stringWithFormat:@"10%% Service Tax: %@", [numberFormatter stringFromNumber:serviceTax]];
+
+  CGFloat discountPercentage = [[DataModel sharedInstance].discount floatValue];
+  NSNumber *discount = [NSNumber numberWithFloat:subtotal * discountPercentage / 100.0];
+  self.discountLabel.text = [NSString stringWithFormat:@"%.2f%% Discount: %@", discountPercentage, [numberFormatter stringFromNumber:discount]];
+  subtotal = subtotal * (100.0 - discountPercentage) / 100.0;
+  number = [NSNumber numberWithFloat:subtotal];
+
+  self.totalLabel.text = [NSString stringWithFormat:@"Total: %@", [numberFormatter stringFromNumber:number]];
+}
+
 #pragma mark - ActionSheet delegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
@@ -232,6 +302,7 @@
 
   [self.context deleteObject:item];
   [self fetchByTag];
+  [self calculateTotals];
   [self.itemsTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
 }
 
@@ -251,8 +322,14 @@
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-  UIView *view = [[UIView alloc] initWithFrame:CGRectZero];
-  return view;
+  UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 300)];
+  footerView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  [footerView addSubview:subtotalLabel];
+  [footerView addSubview:gstLabel];
+  [footerView addSubview:serviceTaxLabel];
+  [footerView addSubview:discountLabel];
+  [footerView addSubview:totalLabel];
+  return footerView;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
