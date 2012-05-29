@@ -366,6 +366,12 @@
 
 #pragma mark - UITableView Delegate
 
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+  UIView *view = [[UIView alloc] initWithFrame:CGRectZero];
+  return view;
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   return 40;
