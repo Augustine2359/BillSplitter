@@ -70,22 +70,38 @@
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;
   CGFloat heightPerLabel = 20;
-  self.itemsTableView.sectionFooterHeight = 5 * heightPerLabel;
   [self.view addSubview:self.itemsTableView];
   
   self.subtotalLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, heightPerLabel)];
   self.subtotalLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   self.subtotalLabel.textAlignment = UITextAlignmentRight;
-  self.gstLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+
+  CGFloat labelHeight = 0;
+  if ([DataModel sharedInstance].isGstIncluded)
+    labelHeight = heightPerLabel;
+  self.gstLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   self.gstLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   self.gstLabel.textAlignment = UITextAlignmentRight;
-  self.serviceTaxLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 2*heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+
+  if ([DataModel sharedInstance].isServiceTaxIncluded)
+    labelHeight = heightPerLabel;
+  else
+    labelHeight = 0;
+  self.serviceTaxLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   self.serviceTaxLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   self.serviceTaxLabel.textAlignment = UITextAlignmentRight;
-  self.discountLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 3*heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+
+  if ([[DataModel sharedInstance].discount isEqualToNumber:[NSNumber numberWithFloat:0]])
+    labelHeight = 0;
+  else
+    labelHeight = heightPerLabel;
+  self.discountLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   self.discountLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   self.discountLabel.textAlignment = UITextAlignmentRight;
-  self.totalLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 4*heightPerLabel, self.view.frame.size.width, heightPerLabel)];
+
+  labelHeight = heightPerLabel;
+
+  self.totalLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   self.totalLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   self.totalLabel.textAlignment = UITextAlignmentRight;
 }
@@ -93,6 +109,46 @@
 - (void)viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
+
+  NSUInteger numberOfLabels = 1;
+  CGFloat heightPerLabel = 20;
+  CGFloat labelHeight = 0;
+
+  if ([DataModel sharedInstance].isGstIncluded)
+  {
+    labelHeight = heightPerLabel;
+    numberOfLabels++;
+  }
+  self.gstLabel.frame = CGRectMake(0, CGRectGetMaxY(self.subtotalLabel.frame), self.view.frame.size.width, labelHeight);
+
+  if ([DataModel sharedInstance].isServiceTaxIncluded)
+  {
+    labelHeight = heightPerLabel;
+    numberOfLabels++;
+  }
+  else
+    labelHeight = 0;
+  self.serviceTaxLabel.frame = CGRectMake(0, CGRectGetMaxY(self.gstLabel.frame), self.view.frame.size.width, labelHeight);
+
+  if ([[DataModel sharedInstance].discount isEqualToNumber:[NSNumber numberWithFloat:0]])
+    labelHeight = 0;
+  else
+  {
+    labelHeight = heightPerLabel;
+    numberOfLabels++;
+  }
+  self.discountLabel.frame = CGRectMake(0, CGRectGetMaxY(self.serviceTaxLabel.frame), self.view.frame.size.width, labelHeight);
+
+  labelHeight = heightPerLabel;
+  if (numberOfLabels == 1)
+    self.totalLabel.frame = self.subtotalLabel.frame;
+  else
+  {
+    numberOfLabels++;
+    self.totalLabel.frame = CGRectMake(0, CGRectGetMaxY(self.discountLabel.frame), self.view.frame.size.width, labelHeight);
+  }
+
+  self.itemsTableView.sectionFooterHeight = numberOfLabels * heightPerLabel;
 
   UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(callActionSheet)];
   self.navigationItem.rightBarButtonItem = rightBarButtonItem;
