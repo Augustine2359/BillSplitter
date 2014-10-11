@@ -114,6 +114,8 @@
 {
   [super viewDidLoad];
   
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
   self.priceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - 40.0, self.view.bounds.size.width/2, 40)];
   self.priceLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
   NSNumberFormatter *numberFormatter = [DataModel sharedInstance].currencyFormatter;

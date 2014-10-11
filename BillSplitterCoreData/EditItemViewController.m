@@ -69,6 +69,8 @@
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
 
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
   self.quantityTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.quantityTextField];
 

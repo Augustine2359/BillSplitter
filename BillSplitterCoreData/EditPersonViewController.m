@@ -55,6 +55,8 @@
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor whiteColor];
 
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
   self.nameTextField.backgroundColor = [UIColor redColor];
   [self.view addSubview:self.nameTextField];
 

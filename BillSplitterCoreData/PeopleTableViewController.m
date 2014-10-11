@@ -50,6 +50,8 @@
 {
   [super viewDidLoad];
   
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
   self.peopleTableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
   self.peopleTableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
   self.peopleTableView.dataSource = self;

@@ -93,6 +93,8 @@
 {
   [super viewDidLoad];
   
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
   self.itemsTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
   self.itemsTableView.dataSource = self;
   self.itemsTableView.delegate = self;

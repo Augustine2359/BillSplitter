@@ -60,8 +60,6 @@
   self = [super init];
   if (self)
   {
-    self.title = @"BillSplitter";
-    
     self.itemsButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [self.itemsButton setTitle:@"Add items\non receipt" forState:UIControlStateNormal];
     self.itemsButton.titleLabel.numberOfLines = 0;
@@ -102,28 +100,51 @@
 - (void)viewDidLoad
 {
   [super viewDidLoad];
+  self.title = @"BillSplitter";
+
+  self.edgesForExtendedLayout = UIRectEdgeNone;
   
   self.itemsButton.frame = CGRectMake(0, 0, self.view.frame.size.width/2, 100);
   self.itemsButton.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [self.view addSubview:self.itemsButton];
   
-  self.peopleButton.frame = CGRectMake(CGRectGetMaxX(self.itemsButton.frame), 0, self.view.frame.size.width/2, 100);
+  self.peopleButton.frame = CGRectMake(CGRectGetMaxX(self.itemsButton.frame) + 1, 0, self.view.frame.size.width/2 - 1, 100);
   self.peopleButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [self.view addSubview:self.peopleButton];
   
-  self.splitBillButton.frame = CGRectMake(0, CGRectGetMaxY(self.itemsButton.frame), self.view.frame.size.width, 100);
+  self.splitBillButton.frame = CGRectMake(0, CGRectGetMaxY(self.itemsButton.frame) + 1, self.view.frame.size.width, 100);
   self.splitBillButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [self.view addSubview:self.splitBillButton];
 
-  self.discountsButton.frame = CGRectMake(0, CGRectGetMaxY(self.splitBillButton.frame), self.view.frame.size.width, 100);
+  self.discountsButton.frame = CGRectMake(0, CGRectGetMaxY(self.splitBillButton.frame) + 1, self.view.frame.size.width, 100);
   self.discountsButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
   [self.view addSubview:self.discountsButton];
 
-  self.gstSwitch.frame = CGRectMake(0, CGRectGetMaxY(self.discountsButton.frame), self.view.frame.size.width/2, 50);
+  for (UIButton *button in self.view.subviews) {
+    button.backgroundColor = [UIColor whiteColor];
+  }
+
+  UILabel *gstLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.discountsButton.frame) + 1, self.view.frame.size.width/2, 50)];
+  gstLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+  gstLabel.text = @"GST";
+  gstLabel.textAlignment = NSTextAlignmentCenter;
+  gstLabel.backgroundColor = [UIColor whiteColor];
+  [self.view addSubview:gstLabel];
+
+  UILabel *serviceTextLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(gstLabel.frame) + 1, CGRectGetMaxY(self.discountsButton.frame) + 1, self.view.frame.size.width/2 - 1, 50)];
+  serviceTextLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+  serviceTextLabel.text = @"Service Tax";
+  serviceTextLabel.textAlignment = NSTextAlignmentCenter;
+  serviceTextLabel.backgroundColor = [UIColor whiteColor];
+  [self.view addSubview:serviceTextLabel];
+
+  self.gstSwitch.frame = CGRectMake(0, CGRectGetMaxY(gstLabel.frame), self.view.frame.size.width/2, 50);
+  self.gstSwitch.center = CGPointMake(gstLabel.center.x, gstSwitch.center.y);
   self.gstSwitch.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
   [self.view addSubview:self.gstSwitch];
   
-  self.serviceTaxSwitch.frame = CGRectMake(self.view.frame.size.width/2, CGRectGetMaxY(self.discountsButton.frame), self.view.frame.size.width/2, 50);
+  self.serviceTaxSwitch.frame = CGRectMake(self.view.frame.size.width/2, CGRectGetMaxY(serviceTextLabel.frame), self.view.frame.size.width/2, 50);
+  self.serviceTaxSwitch.center = CGPointMake(serviceTextLabel.center.x, self.serviceTaxSwitch.center.y);
   self.serviceTaxSwitch.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin;
   [self.view addSubview:self.serviceTaxSwitch];
 }

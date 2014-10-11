@@ -65,6 +65,8 @@
 {
   [super viewDidLoad];
   
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
   self.itemsTableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
   self.itemsTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   self.itemsTableView.dataSource = self;

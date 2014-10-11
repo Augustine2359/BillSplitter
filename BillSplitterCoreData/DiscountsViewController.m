@@ -38,6 +38,10 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
 
+  self.edgesForExtendedLayout = UIRectEdgeNone;
+
+  self.view.backgroundColor = [UIColor grayColor];
+  
   self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save:)];
 
   self.discountLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height - 180)];
@@ -46,6 +50,7 @@
   [self.view addSubview:self.discountLabel];
 
   self.pickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.discountLabel.frame), self.view.bounds.size.width, 180)];
+  self.pickerView.backgroundColor = [UIColor whiteColor];
   self.pickerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
   self.pickerView.showsSelectionIndicator = YES;
   self.pickerView.delegate = self;
